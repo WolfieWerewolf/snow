@@ -1,7 +1,6 @@
 package snow.types;
 
 /** A system event */
-
 @:allow(snow.Snow)
 class SystemEvent {
 

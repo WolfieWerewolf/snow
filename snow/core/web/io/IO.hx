@@ -2,6 +2,9 @@ package snow.core.web.io;
 
 #if snow_web
 
+import snow.types.Error;
+import snow.types.IODataOptions;
+import snow.types.SystemEvent;
 import snow.types.Types;
 import snow.api.buffers.Uint8Array;
 import snow.api.Promise;
@@ -66,8 +69,7 @@ class IO implements snow.modules.interfaces.IO {
                 request.responseType = js.html.XMLHttpRequestResponseType.ARRAYBUFFER;
             }
 
-            request.onload = function(data) {
-
+            request.onload = cast function(data) {
                 if(request.status == 200) {
                     resolve( new Uint8Array(request.response) );
                 } else {

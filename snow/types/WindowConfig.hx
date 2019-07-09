@@ -35,10 +35,9 @@ typedef WindowConfig = {
     @:optional var no_input         : Bool;
 
     /** Time in seconds to sleep when in the background.
-                Setting this to zero disables the behavior.
-                This has no effect on the web target,
-                as there is no concept of sleep there (and browsers usually throttle background tabs).
-                Higher sleep times (i.e 1/10 or 1/30) use less cpu. default: 1/15 */
+        Setting this to zero disables the behavior.
+        This has no effect on the web target,
+        as there is no concept of sleep there (and browsers usually throttle background tabs).
+        Higher sleep times (i.e 1/10 or 1/30) use less cpu. default: 1/15 */
     @:optional var background_sleep : Float;
-
 }

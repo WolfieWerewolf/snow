@@ -5,7 +5,6 @@ import snow.types.TextEventType;
 import snow.types.ModState;
 import snow.types.SystemEvent;
 import snow.types.AppConfig;
-import snow.api.Debug.assertnull;
 import snow.types.Types;
 
 /** The default type of snow application, with variable delta, update limit, render limit, timescale and more. 

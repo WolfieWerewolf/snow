@@ -1,10 +1,5 @@
 package snow.types;
 
-//import snow.api.Debug.*;
-//import snow.api.buffers.Uint8Array;
-
-    /** Common types */
-
     /** These types include further types we don't want to */
     #if !macro
     typedef Asset      = snow.systems.assets.Asset.Asset;

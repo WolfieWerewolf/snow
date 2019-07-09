@@ -2,11 +2,12 @@ package snow.types;
 
 import snow.api.Debug.*;
 import snow.api.buffers.Uint8Array;
+
 class ImageData {
 
     public var app : snow.Snow;
-    /** source asset id */
 
+    /** source asset id */
     public var id : String = 'ImageData';
 
     /** image width from source image */

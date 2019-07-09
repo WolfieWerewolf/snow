@@ -2,6 +2,11 @@ package snow.modules.webaudio;
 
 #if js
 
+import snow.types.AudioFormatType;
+import snow.types.SystemEvent;
+import snow.types.AudioDataOptions;
+import snow.types.AudioData;
+import snow.types.AudioState;
 import snow.api.Debug.*;
 import snow.types.Types;
 import snow.api.Promise;

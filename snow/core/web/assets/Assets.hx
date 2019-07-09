@@ -2,9 +2,12 @@ package snow.core.web.assets;
 
 #if snow_web
 
+import snow.types.ImageData;
+import snow.types.SystemEvent;
 import snow.systems.assets.Asset.AssetImage;
 import snow.systems.assets.Assets;
 import snow.types.Types;
+import snow.types.Error;
 import snow.api.Debug.*;
 import snow.api.buffers.*;
 import snow.api.Promise;
@@ -164,7 +167,7 @@ class Assets implements snow.modules.interfaces.Assets {
             tmp_context.clearRect( 0, 0, tmp_canvas.width, tmp_canvas.height );
 
         var image_bytes = null;
-        var _pixels = new js.html.Uint8ClampedArray(_source.buffer);
+        var _pixels = new js.lib.Uint8ClampedArray(_source.buffer);
         var _imgdata = tmp_context.createImageData( _width, _height );
             _imgdata.data.set(_pixels);
 

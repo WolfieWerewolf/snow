@@ -34,7 +34,7 @@ extern class TGA {
 
     public function new();
     public function open( _url:String, onload:Dynamic->Void ):Void;
-    public function load( data:js.html.Uint8Array ) : Void;
+    public function load( data:js.lib.Uint8Array ) : Void;
     public function getCanvas() : js.html.CanvasElement;
     public function getDataURL( ?_mime:String='image/png' ) : String;
     public function getImageData() : js.html.ImageData;

@@ -9,7 +9,6 @@ import snow.api.buffers.ArrayBufferView;
 import snow.api.buffers.Int32Array;
 import snow.api.buffers.Float32Array;
 
-
 typedef GLActiveInfo                = js.html.webgl.ActiveInfo;
 typedef GLBuffer                    = js.html.webgl.Buffer;
 typedef GLContextAttributes         = js.html.webgl.ContextAttributes;
@@ -22,14 +21,10 @@ typedef GLUniformLocation           = js.html.webgl.UniformLocation;
 typedef GLShaderPrecisionFormat     = js.html.webgl.ShaderPrecisionFormat;
 
 class GL {
-
-
-
-    public static var version(get_version, null) : Int;
+    public static var version(get, null) : Int;
     public static var gl : RenderingContext;
 
-//non-spec
-
+    /** non-spec */
     public static function versionString():String {
 
         var ver = gl.getParameter(VERSION);
@@ -38,11 +33,9 @@ class GL {
         var ven = gl.getParameter(VENDOR);
 
         return "/ " + ver + " / " + slver + " / " + ren + " / " + ven + " /";
-    
-    } //versionString
+    }
 
-//spec
-
+    /** spec */
     inline public static function activeTexture(texture:Int):Void
         gl.activeTexture(texture);
 

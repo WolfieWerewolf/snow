@@ -1,9 +1,7 @@
 package snow.api.buffers;
 
 #if js
-
-    typedef ArrayBufferView = js.html.ArrayBufferView;
-
+typedef ArrayBufferView = js.lib.ArrayBufferView;
 #else
     
     using cpp.NativeArray;

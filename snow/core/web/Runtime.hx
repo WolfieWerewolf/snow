@@ -2,8 +2,14 @@ package snow.core.web;
 
 #if js
 
+import snow.types.OS;
+import snow.types.Error;
+import snow.types.ModState;
+import snow.types.RenderConfig;
+import snow.types.Platform;
 import snow.types.Types;
 import snow.api.Debug.*;
+import snow.types.WindowEventType;
 
 #if (!snow_no_initial_glclear)
 import snow.modules.opengl.GL;
@@ -634,7 +640,7 @@ class Runtime implements snow.core.Runtime {
     function create_render_context(_window:WindowHandle) : Bool {
 
         var config = app.config.render;
-        var attr : js.html.webgl.ContextAttributes = config.webgl;
+        var attr : js.html.webgl.ContextAttributes = cast config.webgl;
 
         attr = apply_GL_attr(config, attr);
 

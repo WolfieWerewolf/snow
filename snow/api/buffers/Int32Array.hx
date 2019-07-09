@@ -1,52 +1,49 @@
 package snow.api.buffers;
 
 #if js
+@:forward
+abstract Int32Array(js.lib.Int32Array)
+    from js.lib.Int32Array
+    to js.lib.Int32Array {
 
-    @:forward
-    abstract Int32Array(js.html.Int32Array)
-        from js.html.Int32Array
-        to js.html.Int32Array {
+    public inline static var BYTES_PER_ELEMENT : Int = 4;
 
-        public inline static var BYTES_PER_ELEMENT : Int = 4;
-
-        inline public function new(_elements:Int) {
-            this = new js.html.Int32Array(_elements);
-        }
-
-        inline static public function fromArray<T>(_array:Array<T>) : Int32Array {
-            return new js.html.Int32Array(untyped _array);
-        }
-
-        inline static public function fromView(_view:ArrayBufferView) : Int32Array {
-            return new js.html.Int32Array(untyped _view);
-        }
-
-        inline static public function fromBuffer(_buffer:ArrayBuffer, _byteOffset:Int, _byteLength:Int) : Int32Array {
-            return new js.html.Int32Array(_buffer, _byteOffset, Std.int(_byteLength/BYTES_PER_ELEMENT));
-        }
-
-        @:arrayAccess @:extern inline function __set(idx:Int, val:Int) : Void this[idx] = val;
-        @:arrayAccess @:extern inline function __get(idx:Int) : Int return this[idx];
-
-
-            //non spec haxe conversions
-        inline public static function fromBytes( bytes:haxe.io.Bytes, ?byteOffset:Int=0, ?len:Int ) : Int32Array {
-            if(byteOffset == null) return new js.html.Int32Array(cast bytes.getData());
-            if(len == null) return new js.html.Int32Array(cast bytes.getData(), byteOffset);
-            return new js.html.Int32Array(cast bytes.getData(), byteOffset, len);
-        }
-
-        inline public function toBytes() : haxe.io.Bytes {
-            #if (haxe_ver < 3.2)
-                return @:privateAccess new haxe.io.Bytes( this.byteLength, cast new js.html.Uint8Array(this.buffer) );
-            #else
-                return @:privateAccess new haxe.io.Bytes( cast new js.html.Uint8Array(this.buffer) );
-            #end
-        }
-
-        inline function toString() return 'Int32Array [byteLength:${this.byteLength}, length:${this.length}]';
-
+    inline public function new(_elements:Int) {
+        this = new js.lib.Int32Array(_elements);
     }
+
+    inline static public function fromArray<T>(_array:Array<T>) : Int32Array {
+        return new js.lib.Int32Array(untyped _array);
+    }
+
+    inline static public function fromView(_view:ArrayBufferView) : Int32Array {
+        return new js.lib.Int32Array(untyped _view);
+    }
+
+    inline static public function fromBuffer(_buffer:ArrayBuffer, _byteOffset:Int, _byteLength:Int) : Int32Array {
+        return new js.lib.Int32Array(_buffer, _byteOffset, Std.int(_byteLength/BYTES_PER_ELEMENT));
+    }
+
+    @:arrayAccess @:extern inline function __set(idx:Int, val:Int) : Void this[idx] = val;
+    @:arrayAccess @:extern inline function __get(idx:Int) : Int return this[idx];
+
+    /** non spec haxe conversions */
+    inline public static function fromBytes(bytes:haxe.io.Bytes, ?byteOffset:Int=0, ?len:Int) : Int32Array {
+        if(byteOffset == null) return new js.lib.Int32Array(cast bytes.getData());
+        if(len == null) return new js.lib.Int32Array(cast bytes.getData(), byteOffset);
+        return new js.lib.Int32Array(cast bytes.getData(), byteOffset, len);
+    }
+
+    inline public function toBytes() : haxe.io.Bytes {
+        #if (haxe_ver < 3.2)
+        return @:privateAccess new haxe.io.Bytes( this.byteLength, cast new js.html.Uint8Array(this.buffer) );
+        #else
+        return @:privateAccess new haxe.io.Bytes(cast new js.lib.Uint8Array(this.buffer));
+        #end
+    }
+
+    inline function toString() return 'Int32Array [byteLength:${this.byteLength}, length:${this.length}]';
+}
 
 #else
 
