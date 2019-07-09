@@ -1,8 +1,10 @@
 package snow.modules.interfaces;
 
+import snow.types.SystemEvent;
+import snow.types.AudioState;
+import snow.types.AudioFormatType;
 import snow.api.buffers.Uint8Array;
 import snow.api.Promise;
-import snow.systems.assets.Asset.AssetAudio;
 import snow.systems.audio.AudioSource;
 import snow.systems.audio.AudioInstance;
 import snow.types.Types;
@@ -10,9 +12,9 @@ import snow.types.Types;
 @:noCompletion
 @:allow(snow.systems.audio.Audio)
 interface Audio {
-
     private var app: snow.Snow;
     private var active: Bool;
+
     private function onevent(event:SystemEvent):Void;
     private function shutdown():Void;
 
@@ -40,5 +42,4 @@ interface Audio {
 
     function suspend():Void;
     function resume():Void;
-
-} //Audio
+}

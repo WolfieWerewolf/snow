@@ -1,5 +1,8 @@
 package snow.core.native.io;
 
+import snow.types.SystemEvent;
+import snow.types.IODataOptions;
+import snow.types.Error;
 import haxe.io.Bytes;
 import snow.types.Types;
 import snow.api.Promise;

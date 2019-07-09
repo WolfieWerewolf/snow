@@ -1,8 +1,8 @@
 package snow.systems.audio;
 
+import snow.types.AudioData;
 import snow.api.Debug.*;
 import snow.types.Types.AudioHandle;
-import snow.types.Types.AudioData;
 import snow.systems.audio.AudioInstance;
 
 class AudioSource {

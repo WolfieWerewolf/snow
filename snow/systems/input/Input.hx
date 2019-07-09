@@ -1,5 +1,15 @@
 package snow.systems.input;
 
+import snow.types.GamepadDeviceEventType;
+import snow.types.TextEventType;
+import snow.types.ModState;
+import snow.types.InputEvent;
+import snow.types.GamepadEvent;
+import snow.types.TouchEvent;
+import snow.types.MouseEvent;
+import snow.types.TextEvent;
+import snow.types.KeyEvent;
+import snow.types.SystemEvent;
 import snow.types.Types;
 import snow.api.Debug.assert;
 

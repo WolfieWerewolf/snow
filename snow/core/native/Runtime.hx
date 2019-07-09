@@ -2,6 +2,8 @@ package snow.core.native;
 
 import snow.api.Debug.*;
 import snow.types.Types;
+import snow.types.OS;
+import snow.types.Platform;
 
 #if (hxcpp_static_std && cpp && !scriptable)
 

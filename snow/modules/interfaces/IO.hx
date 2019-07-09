@@ -1,9 +1,9 @@
 package snow.modules.interfaces;
 
-import snow.types.Types;
+import snow.types.SystemEvent;
+import snow.types.IODataOptions;
 import snow.api.Promise;
 import snow.api.buffers.Uint8Array;
-import snow.api.buffers.ArrayBufferView;
 
 @:noCompletion
 @:allow(snow.systems.io.IO)
@@ -25,5 +25,4 @@ interface IO {
     private function string_slot_decode(_string:String) : String;
     private function string_slot_save(?_slot:Int=0, _contents:String) : Bool;
     private function string_slot_destroy(?_slot:Int=0) : Bool;
-
-} //IO
+}

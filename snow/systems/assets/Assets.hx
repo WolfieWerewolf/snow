@@ -1,5 +1,6 @@
 package snow.systems.assets;
 
+import snow.types.AudioFormatType;
 import snow.api.Promise;
 import snow.api.buffers.Uint8Array;
 import snow.api.Debug.*;

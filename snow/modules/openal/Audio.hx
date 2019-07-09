@@ -1,5 +1,8 @@
 package snow.modules.openal;
 
+import snow.types.SystemEvent;
+import snow.types.AudioState;
+import snow.types.AudioFormatType;
 import snow.api.Debug.*;
 import snow.types.Types;
 import snow.api.Promise;

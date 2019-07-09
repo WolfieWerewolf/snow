@@ -1,6 +1,10 @@
-
-import snow.Snow;
+import snow.types.GamepadDeviceEventType;
+import snow.types.TextEventType;
+import snow.types.AppConfig;
+import snow.types.SystemEvent;
 import snow.types.Types;
+import snow.types.ModState;
+import snow.types.OpenGLProfile;
 import snow.api.Debug.*;
 import snow.api.buffers.Float32Array;
 import snow.modules.opengl.GL;
@@ -20,27 +24,26 @@ typedef UserConfig = {
 
 class Main extends snow.App {
 
-//app stuff
-
+    /**app stuff */
     var size : Int = 128;
     var speed : Float = 100;
     var dir_x : Float = 1;
 
-        //position drawn at
+    /** position drawn at */
     var render_x : Float = 0;
     var render_y : Float = 0;
-        //"physics" position
+
+    /** "physics" position */
     var physical_x : Float = 0;
     var window_width : Int = 640;
     var window_height : Int = 320;
 
     var vsync = true;
 
-//input stuff
-
+    /** input stuff */
     var no_gamepad_deadzone : Bool = false;
 
-    function new() {}
+    public function new() {}
 
     override function config( config:AppConfig ) : AppConfig {
 
@@ -48,10 +51,9 @@ class Main extends snow.App {
 
         fixed_timestep = true;
 
-            //here we can change the config.window and config.runtime values
-            //before they are used by the framework, i.e verifying the runtime config values
-            //and rejecting/updating invalid ones
-
+        /** here we can change the config.window and config.runtime values
+            before they are used by the framework, i.e verifying the runtime config values
+            and rejecting/updating invalid ones */
         if(config.user.window != null) {
             if(config.user.window.width != null) config.window.width = config.user.window.width;
             if(config.user.window.height != null) config.window.height = config.user.window.height;
@@ -61,20 +63,17 @@ class Main extends snow.App {
         window_width = config.window.width;
         window_height = config.window.height;
 
-        //If you want to test against GL 3.x+ core profile, uncomment this,
-        //but note that this has system requirements obviously
-        // config.render.opengl.profile = OpenGLProfile.core;
-
+        /** If you want to test against GL 3.x+ core profile, uncomment this,
+            but note that this has system requirements obviously
+            config.render.opengl.profile = OpenGLProfile.core; */
         trace(config.window);
 
         return config;
-
-    } //config
+    }
 
     #if snowhxt var hxt : Snowhxt; #end
 
     override function ready() {
-
         log('/ HOST / ready');
         log("OpenGL reports version " + GL.versionString());
 
@@ -91,32 +90,25 @@ class Main extends snow.App {
 
         log("init / done with shaders and buffers");
 
-            //start mid window
+        /** start mid window */
         render_y = (window_width - size) / 2;
 
         #if snowhxt hxt = new Snowhxt(); #end
+    }
 
-    } //ready
-
-        //"physics" update
-    override function update( delta:Float ) {
-
+    /** "physics" update */
+    override function update(delta:Float) {
         render_x = physical_x;
-
         physical_x += (speed * dir_x * delta);
-
-    } //update
+    }
 
     override function tick(delta:Float) {
-        
         on_render_update();
 
         #if snowhxt hxt.update(); #end
-
-    } //tick
+    }
 
     override public function onevent(event:SystemEvent) {
-
         // if(event.type != se_tick) trace('system event : ${event.type}');
 
         if(event.window != null) {
@@ -130,45 +122,36 @@ class Main extends snow.App {
     }
 
     override public function ontextinput( text:String, start:Int, length:Int, type:TextEventType, timestamp:Float, window_id:Int ) {
-
         log('text event; text:$text / start: $start / length: $length / type:$type / timestamp:${timestamp} / window: ${window_id}');
+    }
 
-    } //ontextinput
-
-        //render update
+    /** render update */
     function on_render_update() {
-
-        //note that the update is separated from the render rate
-        //this is the fix-your-timestep implementation
-        //essentially app.frame_time is a fixed timestep,
-        //alpha time is how far we are between a frame and the next,
-        //allowing us to render the mid frame placement smoothly
-
+        /** note that the update is separated from the render rate
+            this is the fix-your-timestep implementation
+            essentially app.frame_time is a fixed timestep,
+            alpha time is how far we are between a frame and the next,
+            allowing us to render the mid frame placement smoothly */
         var prev_render_x = render_x;
 
-            //this interpolates the render position
+        /** this interpolates the render position */
         render_x = (physical_x * fixed_alpha) + prev_render_x * (1.0 - fixed_alpha);
 
         if(render_x >= (window_width - size)) {
-
             render_x = (window_width - size);
             dir_x = -1;
 
         } else if(render_x <= 0) {
-
             render_x = 0;
             dir_x = 1;
-
         }
 
         // Sys.println('alpha:${alpha} dt:${delta_time} delta_sim:${delta_sim}');
 
         draw();
-
-    } //on_render_update
+    }
 
     function draw() {
-
         GL.viewport(0, 0, window_width, window_height);
         GL.clearColor(1.0, 1.0, 1.0, 1.0);
         GL.clear( GL.COLOR_BUFFER_BIT );
@@ -176,103 +159,97 @@ class Main extends snow.App {
         projection = createOrthoMatrix(projection, 0, window_width, window_height, 0, 1000, -1000 );
         modelview = create2DMatrix(modelview, render_x, render_y, 1, 0 );
 
-            //set state, update uniforms
+        /** set state, update uniforms */
         GL.useProgram(program);
-        GL.uniformMatrix4fv( uniform_MP, false, projection );
-        GL.uniformMatrix4fv( uniform_MV, false, modelview );
+        GL.uniformMatrix4fv(uniform_MP, false, projection);
+        GL.uniformMatrix4fv(uniform_MV, false, modelview);
 
-            //point pos to our buffer
+        /** point pos to our buffer */
         GL.enableVertexAttribArray( attr_pos );
         GL.bindBuffer(GL.ARRAY_BUFFER, pos_buffer);
         GL.vertexAttribPointer(attr_pos, 3, GL.FLOAT, false, 0, 0);
 
-            //draw the buffer
+        /** draw the buffer */
         GL.drawArrays(GL.TRIANGLE_STRIP, 0, 4);
 
-            //unset used state
+        /** unset used state */
         GL.bindBuffer(GL.ARRAY_BUFFER, null);
         GL.disableVertexAttribArray(attr_pos);
         
         GL.useProgram(null);
 
-    } //draw
+    }
 
-//Input
-
+    /** Input */
     var fs = false;
     var grab = false;
 
     override function onkeyup( keycode:Int, scancode:Int,_, mod:ModState, _,_ ) {
-
         // log('key up : $keycode / scan code : $scancode / scan name : ${Scan.name(scancode)}');
 
-            //alt enter to toggle fullscreen test
-        if( keycode == Key.enter && mod.alt ) {
+        /** alt enter to toggle fullscreen test */
+        if(keycode == Key.enter && mod.alt) {
             fs = !fs;
             app.runtime.window_fullscreen(fs);
             log('fullscreen $fs');
         }
 
-            //ctrl enter to toggle pointer lock test
-        if( keycode == Key.enter && mod.ctrl ) {
+        /** ctrl enter to toggle pointer lock test */
+        if(keycode == Key.enter && mod.ctrl) {
             grab = !grab;
             app.runtime.window_grab(grab);
             log('grab $grab');
         }
 
-        if( keycode == Key.key_f ) {
+        if(keycode == Key.key_f) {
             fixed_timestep = !fixed_timestep;
         }
 
-        if( keycode == Key.key_p ) {
+        if(keycode == Key.key_p) {
             app.freeze = !app.freeze;
         }
 
-        if( keycode == Key.escape ) {
+        if(keycode == Key.escape) {
             app.shutdown();
         }
 
-        if( keycode == Key.key_g ) {
+        if(keycode == Key.key_g) {
             no_gamepad_deadzone = !no_gamepad_deadzone;
             log('gamepad no clamp: $no_gamepad_deadzone');
         }
 
         #if snow_native
-            if(keycode == Key.key_v) {
-                vsync = !vsync;
-                sdl.SDL.GL_SetSwapInterval(vsync);
-                log('vsync enabled : $vsync');
-            }
+        if(keycode == Key.key_v) {
+            vsync = !vsync;
+            sdl.SDL.GL_SetSwapInterval(vsync);
+            log('vsync enabled : $vsync');
+        }
         #end
-
-    } //onkeyup
+    }
 
     override function ontouchup(x:Float, y:Float, dx:Float, dy:Float, touch_id:Int, timestamp:Float) {
-
         log('touch up; $x / $y / $dx / $dy / $touch_id / $timestamp ');
-            //touches are normalized, so we convert to window size
+
+        /** touches are normalized, so we convert to window size */
         render_x = physical_x = ((window_width*x) - (size/2));
         render_y = (window_height*y) - (size/2);
-
-    } //touchup
-
-    override function ontouchmove( x:Float, y:Float, dx:Float, dy:Float, touch_id:Int, timestamp:Float ) {
-            
-        // log('touch move; $x / $y / $dx / $dy / $touch_id / $timestamp ');
-            //touches are normalized, so we convert to window size
-        render_x = physical_x = ((window_width*x) - (size/2));
-        render_y = (window_height*y) - (size/2);
-
-    } //ontouchmove
-
-    override function onmousewheel( x:Float, y:Float, timestamp:Float, window_id:Int ) {
-
-        log('mouse wheel $x / $y / $timestamp / $window_id');
 
     }
 
-    override function onmousemove( x:Int, y:Int, xrel:Int, yrel:Int, timestamp:Float, window_id:Int ) {
+    override function ontouchmove(x:Float, y:Float, dx:Float, dy:Float, touch_id:Int, timestamp:Float) {
+        // log('touch move; $x / $y / $dx / $dy / $touch_id / $timestamp ');
 
+        /** touches are normalized, so we convert to window size */
+        render_x = physical_x = ((window_width*x) - (size/2));
+        render_y = (window_height*y) - (size/2);
+
+    }
+
+    override function onmousewheel(x:Float, y:Float, timestamp:Float, window_id:Int) {
+        log('mouse wheel $x / $y / $timestamp / $window_id');
+    }
+
+    override function onmousemove(x:Int, y:Int, xrel:Int, yrel:Int, timestamp:Float, window_id:Int) {
         // log('mouse move $x / $y / $xrel / $yrel / $timestamp / $window_id');
 
         if(app.input.keydown(Key.space)) {
@@ -280,18 +257,17 @@ class Main extends snow.App {
             render_y = y - (size/2);
         }
 
-    } //onmousemove
+    }
 
-    override function onmouseup( x:Int, y:Int, button:Int, timestamp:Float, window_id:Int ) {
-
+    override function onmouseup(x:Int, y:Int, button:Int, timestamp:Float, window_id:Int) {
         // log('mouse up $x $y $button $timestamp $window_id');
 
         #if (!mobile)
-            render_x = physical_x = (x - (size/2));
-            render_y = y - (size/2);
+        render_x = physical_x = (x - (size/2));
+        render_y = y - (size/2);
         #end
 
-    } //onmouseup
+    }
 
     override function ongamepadup(gamepad:Int,btn:Int,value:Float,_) {
         log('gamepad up; device: ${gamepad}, btn: ${btn}, value: ${value}');
@@ -301,61 +277,53 @@ class Main extends snow.App {
         log('gamepad down; device: ${gamepad}, btn: ${btn}, value: ${value}');
     }
 
-    override function ongamepaddevice( gamepad:Int, id:String, type:GamepadDeviceEventType, _ ) {
+    override function ongamepaddevice(gamepad:Int, id:String, type:GamepadDeviceEventType, _) {
         log('gamepad device; $type  device: $gamepad id: $id');
     }
 
-    override function ongamepadaxis( gamepad:Int, axis:Int, value:Float, timestamp:Float ) {
-
+    override function ongamepadaxis( gamepad:Int, axis:Int, value:Float, timestamp:Float) {
         if(Math.abs(value) > 0.2 || no_gamepad_deadzone) {
             // log('axis; device: ${gamepad}, axis: ${axis}, value: ${value} timestamp: ${timestamp}');
             if(axis == 1) {
                 render_y += value * 2 * speed * frame_delta;
             }
         }
+    }
 
-    } //ongamepadaxis
-
-
-//Set up
-
+    /** Set up */
     function apply_config() {
-
-        if(app.config.user.size != null)
+        if(app.config.user.size != null){
             size = app.config.user.size;
-        if(app.config.user.movespeed != null)
+        }
+
+        if(app.config.user.movespeed != null){
             speed = app.config.user.movespeed;
-        if(app.config.user.timescale != null)
+        }
+
+        if(app.config.user.timescale != null){
             timescale = app.config.user.timescale;
+        }
+    }
 
-    } //apply_config
+    /** --GL stuff-- */
 
+    /** shader program */
+    var program:GLProgram;
 
-//GL stuff
+    /** shader input */
+    var uniform_MV:GLUniformLocation;
+    var uniform_MP:GLUniformLocation;
+    var attr_texcoord:Int;
+    var attr_pos:Int = 0;
 
-    //shader program
+    /** GL data */
+    var pos_buffer:GLBuffer;
 
-        var program:GLProgram;
-
-    //shader input
-
-        var uniform_MV:GLUniformLocation;
-        var uniform_MP:GLUniformLocation;
-        var attr_texcoord:Int;
-        var attr_pos:Int = 0;
-
-    //GL data
-
-        var pos_buffer:GLBuffer;
-
-    //app data
-
-        var projection : Float32Array;
-        var modelview : Float32Array;
-
+    /** app data */
+    var projection : Float32Array;
+    var modelview : Float32Array;
 
     function init_shaders() : Void {
-
         var vert_shader = "";
         var frag_shader = "";
 
@@ -405,11 +373,9 @@ class Main extends snow.App {
                 ";
         }
 
-        //vertex
+        /** vertex */
         log("about to create a vertex shader");
-
             var vshader = GL.createShader(GL.VERTEX_SHADER);
-
                 GL.shaderSource (vshader, vert_shader);
                 GL.compileShader (vshader);
 
@@ -419,7 +385,7 @@ class Main extends snow.App {
 
         log("vertex shader compiled");
 
-        //fragment
+        /** fragment */
         log("about to create a fragment shader");
 
             var fshader = GL.createShader(GL.FRAGMENT_SHADER);
@@ -433,14 +399,13 @@ class Main extends snow.App {
 
         log("fragment shader compiled");
 
-        //linking
-
+        /** linking */
         log("about to link the shader program");
 
         program = GL.createProgram();
 
-            GL.attachShader(program, vshader);
-            GL.attachShader(program, fshader);
+        GL.attachShader(program, vshader);
+        GL.attachShader(program, fshader);
 
         GL.linkProgram( program );
 
@@ -452,10 +417,9 @@ class Main extends snow.App {
         uniform_MP = GL.getUniformLocation(program, "projection");
         uniform_MV = GL.getUniformLocation(program, "modelview");
 
-    } //init_shaders
+    }
 
     function init_buffers() {
-
         #if (linc_opengl && !js && !linc_opengl_GLES)
             if(app.config.render.opengl.profile == OpenGLProfile.core) {
                 var vaos = [0];
@@ -473,18 +437,12 @@ class Main extends snow.App {
 
         pos_buffer = GL.createBuffer ();
         GL.bindBuffer (GL.ARRAY_BUFFER, pos_buffer);
-
-            GL.bufferData(GL.ARRAY_BUFFER, Float32Array.fromArray(vertices), GL.STATIC_DRAW);
-
+        GL.bufferData(GL.ARRAY_BUFFER, Float32Array.fromArray(vertices), GL.STATIC_DRAW);
         GL.bindBuffer (GL.ARRAY_BUFFER, null);
+    }
 
-    } //init_buffers
-
-
-//Helpers
-
-    function createOrthoMatrix( ?into:Float32Array, x0:Float, x1:Float,  y0:Float, y1:Float, zNear:Float, zFar:Float ) : Float32Array {
-
+    /** Helpers */
+    function createOrthoMatrix(?into:Float32Array, x0:Float, x1:Float,  y0:Float, y1:Float, zNear:Float, zFar:Float):Float32Array {
         var i = into;
         if(i == null) i = new Float32Array(16);
 
@@ -499,10 +457,9 @@ class Main extends snow.App {
 
         return i;
 
-    } //createOrthoMatrix
+    }
 
-    function create2DMatrix( ?into:Float32Array, x:Float, y:Float, scale:Float = 1, rotation:Float = 0 ) {
-
+    function create2DMatrix(?into:Float32Array, x:Float, y:Float, scale:Float = 1, rotation:Float = 0) {
         var i = into;
         if(i == null) i = new Float32Array(16);
 
@@ -517,6 +474,5 @@ class Main extends snow.App {
 
         return i;
 
-    } //create2DMatrix
-
-} //Main
+    }
+}

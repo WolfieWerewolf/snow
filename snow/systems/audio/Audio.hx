@@ -1,5 +1,9 @@
 package snow.systems.audio;
 
+import snow.types.WindowEventType;
+import snow.types.SystemEvent;
+import snow.types.AudioState;
+import snow.types.AudioEvent;
 import snow.types.Types;
 import snow.systems.assets.Asset;
 import snow.systems.audio.AudioInstance;

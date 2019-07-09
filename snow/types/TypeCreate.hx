@@ -9,7 +9,6 @@ import haxe.macro.TypeTools;
 
 @:noCompletion
 class TypeCreate {
-
     static var errors = [
         "UserConfig"    => "snow.Set.main",
         "RuntimeConfig" => "snow.Set.runtime",
@@ -24,7 +23,6 @@ class TypeCreate {
     ];
 
     static public function build(_lookup:String) {
-
         var _source_name = '';
         var _source_pack = null;
         var _source_sub = null;
@@ -68,11 +66,9 @@ class TypeCreate {
         });
 
         return null;
-
-    } //build
+    }
 
     macro public static function ext() : Array<Field> {
-
         if(snow.types.Config.extensions == null) snow.types.Config.extensions = [];
         for(_extension_type in snow.types.Config.extensions) {
             var _modules = Context.getModule(_extension_type);
@@ -82,9 +78,7 @@ class TypeCreate {
         }
 
         return Context.getBuildFields();
-
     }
-
-} //TypeCreate
+}
 
 #end

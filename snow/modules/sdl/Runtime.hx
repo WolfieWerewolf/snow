@@ -1,5 +1,13 @@
 package snow.modules.sdl;
 
+import snow.types.GamepadDeviceEventType;
+import snow.types.TextEventType;
+import snow.types.WindowConfig;
+import snow.types.SystemEventType;
+import snow.types.WindowEventType;
+import snow.types.ModState;
+import snow.types.RenderConfig;
+import snow.types.Error;
 import snow.api.Debug.*;
 import snow.types.Types;
 import sdl.SDL;
@@ -460,7 +468,7 @@ class Runtime extends snow.core.native.Runtime {
 
     function window_flags(config:WindowConfig) {
 
-        var flags : SDLWindowFlags = 0;
+        var flags : SDLWindowFlags = cast 0;
 
         flags |= SDL_WINDOW_OPENGL;
         flags |= SDL_WINDOW_ALLOW_HIGHDPI;
@@ -777,7 +785,7 @@ class Runtime extends snow.core.native.Runtime {
     } //handle_input_ev
 
     /** Helper to return a `ModState` (shift, ctrl etc) from a given `InputEvent` */
-    function to_key_mod( mod_value:Int ) : ModState {
+    function to_key_mod(mod_value:Int) : ModState {
 
             app.input.mod_state.none    = mod_value == KMOD_NONE;
 

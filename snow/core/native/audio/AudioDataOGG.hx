@@ -1,5 +1,8 @@
 package snow.core.native.audio;
 
+import snow.types.AudioData;
+import snow.types.AudioDataOptions;
+import snow.modules.sdl.IO.FileHandle;
 import snow.types.Types;
 import snow.api.Debug.*;
 import snow.api.buffers.Uint8Array;

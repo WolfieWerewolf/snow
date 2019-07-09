@@ -1,5 +1,8 @@
 package snow.core;
 
+import snow.types.SystemEvent;
+import snow.types.AudioState;
+import snow.types.AudioFormatType;
 import snow.types.Types;
 import snow.api.Promise;
 import snow.api.buffers.Uint8Array;

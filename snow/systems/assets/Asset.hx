@@ -1,8 +1,13 @@
 package snow.systems.assets;
 
-import snow.systems.assets.Asset;
+import snow.types.AudioData;
+import snow.types.AudioFormatType;
+import snow.types.ImageData;
+import snow.types.Error;
+
 import snow.systems.assets.Assets;
 import snow.types.Types;
+import snow.types.AssetType;
 import snow.api.buffers.Uint8Array;
 import snow.api.Promise;
 import snow.api.Debug.*;
