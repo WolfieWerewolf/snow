@@ -45,68 +45,63 @@ abstract Int32Array(js.lib.Int32Array)
     inline function toString() return 'Int32Array [byteLength:${this.byteLength}, length:${this.length}]';
 }
 
-#else
+#end
+#if cpp
 
-    import snow.api.buffers.ArrayBufferView;
-    import snow.api.buffers.TypedArrayType;
+import snow.api.buffers.ArrayBufferView;
+import snow.api.buffers.TypedArrayType;
 
-    @:forward
-    abstract Int32Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView {
+@:forward
+abstract Int32Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView {
+    public inline static var BYTES_PER_ELEMENT : Int = 4;
 
-        public inline static var BYTES_PER_ELEMENT : Int = 4;
+    public var length (get, never):Int;
 
-        public var length (get, never):Int;
-
-        inline public function new(_elements:Int) {
-            this = ArrayBufferView.fromElements(Int32, _elements);
-        }
-
-        // @:generic
-        static public inline function fromArray<T>(_array:Array<T>) : Int32Array {
-            return ArrayBufferView.fromArray(Int32, cast _array);
-        }
-
-        static public inline function fromView(_view:ArrayBufferView) : Int32Array {
-            return ArrayBufferView.fromView(Int32, _view);
-        }
-
-        static public inline function fromBuffer(_buffer:ArrayBuffer, _byteOffset:Int, _byteLength:Int) : Int32Array {
-            return ArrayBufferView.fromBuffer(Int32, _buffer, _byteOffset, _byteLength);
-        }
-
-    //Public API
-
-        public inline function subarray( begin:Int, end:Null<Int> = null) : Int32Array return this.subarray(begin, end);
-
-
-        inline public static function fromBytes(_bytes:haxe.io.Bytes, ?_byteOffset:Int=0, ?_byteLength:Int) : Int32Array {
-            if(_byteLength == null) _byteLength = _bytes.length;
-            return Int32Array.fromBuffer(_bytes.getData(), _byteOffset, _byteLength);
-        }
-
-        inline public function toBytes() : haxe.io.Bytes {
-            return haxe.io.Bytes.ofData(this.buffer);
-        }
-
-    //Internal
-
-        inline function get_length() return this.length;
-
-
-        @:noCompletion
-        @:arrayAccess @:extern
-        public inline function __get(idx:Int) {
-            return ArrayBufferIO.getInt32(this.buffer, this.byteOffset+(idx*BYTES_PER_ELEMENT));
-        }
-
-        @:noCompletion
-        @:arrayAccess @:extern
-        public inline function __set(idx:Int, val:Int) : Void {
-            ArrayBufferIO.setInt32(this.buffer, this.byteOffset+(idx*BYTES_PER_ELEMENT), val);
-        }
-
-        inline function toString() return this == null ? null : 'Int32Array [byteLength:${this.byteLength}, length:${this.length}]';
-
+    inline public function new(_elements:Int) {
+        this = ArrayBufferView.fromElements(Int32, _elements);
     }
 
-#end //!js
+    /** @:generic */
+    static public inline function fromArray<T>(_array:Array<T>) : Int32Array {
+        return ArrayBufferView.fromArray(Int32, cast _array);
+    }
+
+    static public inline function fromView(_view:ArrayBufferView) : Int32Array {
+        return ArrayBufferView.fromView(Int32, _view);
+    }
+
+    static public inline function fromBuffer(_buffer:ArrayBuffer, _byteOffset:Int, _byteLength:Int) : Int32Array {
+        return ArrayBufferView.fromBuffer(Int32, _buffer, _byteOffset, _byteLength);
+    }
+
+    /** Public API */
+    public inline function subarray( begin:Int, end:Null<Int> = null) : Int32Array return this.subarray(begin, end);
+
+    inline public static function fromBytes(_bytes:haxe.io.Bytes, ?_byteOffset:Int=0, ?_byteLength:Int) : Int32Array {
+        if(_byteLength == null) _byteLength = _bytes.length;
+        return Int32Array.fromBuffer(_bytes.getData(), _byteOffset, _byteLength);
+    }
+
+    inline public function toBytes() : haxe.io.Bytes {
+        return haxe.io.Bytes.ofData(this.buffer);
+    }
+
+    /** Internal */
+    inline function get_length() return this.length;
+
+    @:noCompletion
+    @:arrayAccess @:extern
+    public inline function __get(idx:Int) {
+        return ArrayBufferIO.getInt32(this.buffer, this.byteOffset+(idx*BYTES_PER_ELEMENT));
+    }
+
+    @:noCompletion
+    @:arrayAccess @:extern
+    public inline function __set(idx:Int, val:Int) : Void {
+        ArrayBufferIO.setInt32(this.buffer, this.byteOffset+(idx*BYTES_PER_ELEMENT), val);
+    }
+
+    inline function toString() return this == null ? null : 'Int32Array [byteLength:${this.byteLength}, length:${this.length}]';
+}
+
+#end

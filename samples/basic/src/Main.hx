@@ -22,6 +22,15 @@ typedef UserConfig = {
     timescale: Null<Int>
 }
 
+//@:buildXml("
+//    <linker id='exe' exe='emcc'>
+//        <flag value='-s' />
+//        <flag value='WASM=1' />
+//        <flag value='-s' />
+//        <flag value='USE_SDL=2' />
+//        <flag value='-s ALLOW_MEMORY_GROWTH=1' />
+//        <flag value='-DEMSCRIPTEN=1' />
+//    </linker>")
 class Main extends snow.App {
 
     /**app stuff */

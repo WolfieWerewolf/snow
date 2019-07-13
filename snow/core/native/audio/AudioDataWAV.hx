@@ -3,7 +3,6 @@ package snow.core.native.audio;
 import snow.types.AudioData;
 import snow.types.AudioDataOptions;
 import snow.modules.sdl.IO.FileHandle;
-import snow.types.Types;
 import snow.api.Debug.*;
 import snow.api.buffers.Uint8Array;
 import snow.core.native.io.IO.FileSeek;
@@ -12,18 +11,15 @@ private typedef WavChunk = { id:String, offset:Int, data:Uint8Array, data_length
 private typedef WavHandle = { handle:FileHandle, offset:Int }
 
 class AudioDataWAV extends AudioData {
-
     public var data_offset : Int;
     public var handle : FileHandle;
 
     inline public function new(_app:snow.Snow, _handle:FileHandle, _offset:Int, _opt:AudioDataOptions) {
-
         handle = _handle;
         data_offset = _offset;
 
         super(_app, _opt);
-
-    } //new
+    }
 
     override public function destroy() {
 
@@ -34,19 +30,15 @@ class AudioDataWAV extends AudioData {
         handle = null;
 
         super.destroy();
-
-    } //destroy
+    }
 
     override public function seek(_to:Int) : Bool {
-
         var _result = app.io.module.file_seek(handle, data_offset + _to, FileSeek.set);
 
         return _result == 0;
-
-    } //seek
+    }
 
     override public function portion(_into:Uint8Array, _start:Int, _len:Int, _into_result:Array<Int>) : Array<Int> {
-
         if(_start != -1) {
             seek(_start+data_offset);
         }
@@ -69,14 +61,14 @@ class AudioDataWAV extends AudioData {
 
         _debug('wav / reading $_read_len bytes from $_start');
 
-            //resize to fit the requested/remaining length
+        /** resize to fit the requested/remaining length */
         var _byte_gap = (_read_len & 0x03);
         // var _samples = new Uint8Array(_read_len + _byte_gap);
         var _n_elements = 1;
         var _elements_read = app.io.module.file_read(handle, _into, _read_len, _n_elements);
 
-            //if no elements were read, it was an error
-            //or end of file so either way it's complete.
+        /** if no elements were read, it was an error
+            or end of file so either way it's complete. */
         if(_elements_read == 0) _complete = true;
 
         _debug('wav / total read $_read_len bytes, complete? $_complete');
@@ -85,38 +77,29 @@ class AudioDataWAV extends AudioData {
         _into_result[1] = (_complete)?1:0;
 
         return _into_result;
-
-    } //portion
-
-} //AudioDataWaV
+    }
+}
 
 class WAV {
-
     public static function from_file(app:snow.Snow, _path:String, _is_stream:Bool) {
-
         var _handle = app.io.module.file_handle(_path, 'rb');
 
         return from_file_handle(app, _handle, _path, _is_stream);
-
-    } //from_file
+    }
 
     public static function from_bytes(app:snow.Snow, _path:String, _bytes:Uint8Array) : AudioData {
-
         var _handle = app.io.module.file_handle_from_mem(_bytes, _bytes.length);
 
         return from_file_handle(app, _handle, _path, false);
+    }
 
-    } //from_bytes
-
- //helpers
-
+    /** helpers */
     static var ID_DATA  = 'data'; 
     static var ID_FMT   = 'fmt '; 
     static var ID_WAVE  = 'WAVE';
     static var ID_RIFF  = 'RIFF';
 
     public static function from_file_handle(app:snow.Snow, _handle:FileHandle, _path:String, _is_stream:Bool) : AudioData {
-
         if(_handle == null) return null;
 
         var _length = 0;
@@ -161,28 +144,27 @@ class WAV {
             if(_chunk.id == ID_FMT) {
                 _found_format = true;
 
-                // 16 bytes                 size /  at
-                // short audioFormat;         2  /  0
-                // short numChannels;         2  /  2
-                // unsigned int sampleRate;   4  /  4
-                // unsigned int byteRate;     4  /  8
-                // short blockAlign;          2  /  12
-                // short bitsPerSample;       2  /  14
-
+                /** 16 bytes                 size /  at
+                    short audioFormat;         2  /  0
+                    short numChannels;         2  /  2
+                    unsigned int sampleRate;   4  /  4
+                    unsigned int byteRate;     4  /  8
+                    short blockAlign;          2  /  12
+                    short bitsPerSample;       2  /  14 */
                 var _format = _chunk.data.toBytes();
                 var _bitrate = _format.getInt32(8);
                 _info.bits_per_sample = _format.getUInt16(14);
                 _info.channels = _format.getUInt16(2);
                 _info.rate = _format.getInt32(4);
                 _format = null;
-            } //fmt
+            }
 
             if(_chunk.id == ID_DATA) {
                 _found_data = true;
                 _info.samples = _chunk.data;
                 _info.length = _chunk.data_length;
                 _info.data_offset = _chunk.offset;
-            } //data
+            }
 
             _chunk.data = null;
             _chunk = null;
@@ -190,15 +172,12 @@ class WAV {
             ++_limit;
             
             if(_limit >= 32) break;
-
-        } //while
+        }
 
         return _info;
-
-    } //from_file_handle
+    }
 
     public static function read_chunk(app:snow.Snow, _handle:FileHandle, _is_stream:Bool) : WavChunk {
-
         var _header_size = 8;
         var _header = new Uint8Array(_header_size);
 
@@ -215,12 +194,12 @@ class WAV {
         var _pos = app.io.module.file_tell(_handle);
 
 
-            //We only read data/fmt chunks
+        /** We only read data/fmt chunks */
         var _is_data = _chunk_id == ID_DATA;
         var _is_fmt  = _chunk_id == ID_FMT;
         var _should_read = _is_data || _is_fmt;
 
-            //we don't need to read the sample data if streaming
+        /** we don't need to read the sample data if streaming */
         if(_is_data && _is_stream) {
             _should_read = false;
         }
@@ -238,7 +217,5 @@ class WAV {
             data: _data,
             data_length: _chunk_size
         }
-
-    } //read_chunk
-
-} //WAV
+    }
+}

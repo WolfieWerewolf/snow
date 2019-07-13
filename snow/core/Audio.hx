@@ -43,16 +43,13 @@ class Audio implements snow.modules.interfaces.Audio {
     public function instance_of(_handle:AudioHandle) : AudioInstance { return null; }
 
    /** Uses the extension of the given path to return the `AudioFormatType` */
-        public static inline function audio_format_from_path(_path:String) : AudioFormatType {
-
-            var _ext = haxe.io.Path.extension(_path);
-            return switch(_ext) {
-                case 'wav': af_wav;
-                case 'ogg': af_ogg;
-                case 'pcm': af_pcm;
-                case _:     af_unknown;
-            }
-
-        } //audio_format_from_path
-
+    public static inline function audio_format_from_path(_path:String) : AudioFormatType {
+        var _ext = haxe.io.Path.extension(_path);
+        return switch(_ext) {
+            case 'wav': af_wav;
+            case 'ogg': af_ogg;
+            case 'pcm': af_pcm;
+            case _:     af_unknown;
+        }
+    }
 }

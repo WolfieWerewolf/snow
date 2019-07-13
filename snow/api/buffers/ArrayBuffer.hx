@@ -2,13 +2,13 @@ package snow.api.buffers;
 
 #if js
 typedef ArrayBuffer = js.lib.ArrayBuffer;
-#else
+#end
+#if cpp
 
 import haxe.io.BytesData;
 
 @:forward
 abstract ArrayBuffer(BytesData) from BytesData to BytesData {
-
     public var byteLength (get, never) : Int;
 
     public inline function new( byteLength:Int ) {
@@ -16,9 +16,9 @@ abstract ArrayBuffer(BytesData) from BytesData to BytesData {
             if(byteLength>0) this[byteLength-1] = untyped 0;
         }
 
-        inline function get_byteLength() {
-            return this.length;
-        }
+    inline function get_byteLength() {
+        return this.length;
     }
+}
 
-#end //!js
+#end

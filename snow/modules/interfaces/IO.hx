@@ -8,7 +8,6 @@ import snow.api.buffers.Uint8Array;
 @:noCompletion
 @:allow(snow.systems.io.IO)
 interface IO {
-
     private var app: snow.Snow;
     private function onevent(event:SystemEvent):Void;
     private function shutdown():Void;

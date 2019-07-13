@@ -24,15 +24,19 @@ import opengl.WebGL as GL;
 @:allow(snow.Snow)
 class Runtime extends snow.core.native.Runtime {
 
-        /** The SDL GL context */
+    /** The SDL GL context */
     public var gl : sdl.GLContext;
-        /** The SDL window handle */
+
+    /** The SDL window handle */
     public var window : sdl.Window;
-        /** Toggle auto window swap */
+
+    /** Toggle auto window swap */
     public var auto_swap : Bool = true;
-        /** internal: map of gamepad index to gamepad instance */
+
+    /** internal: map of gamepad index to gamepad instance */
     var gamepads : Map<Int, sdl.GameController>;
-        /** internal: map of joystick index to joystick instance */
+
+    /** internal: map of joystick index to joystick instance */
     var joysticks : Map<Int, sdl.Joystick>;
 
     function new(_app:snow.Snow) {
@@ -51,97 +55,85 @@ class Runtime extends snow.core.native.Runtime {
             throw Error.init('runtime / sdl / failed to init / `${SDL.getError()}`');
         }
 
-        //video
+        /** video */
+        var status = SDL.initSubSystem(SDL_INIT_VIDEO);
+        if(status != 0) {
+            throw Error.init('runtime / sdl / failed to init video / `${SDL.getError()}`');
+        } else {
+            _debug('sdl / init video');
+        }
 
-            var status = SDL.initSubSystem(SDL_INIT_VIDEO);
-            if(status != 0) {
-                throw Error.init('runtime / sdl / failed to init video / `${SDL.getError()}`');
-            } else {
-                _debug('sdl / init video');
-            }
+        /** input */
 
-        //input
+        #if !snow_sdl_no_controller
+        status = SDL.initSubSystem(SDL_INIT_GAMECONTROLLER);
+        if(status == -1) {
+            log('sdl / Could not initialize controller : `${SDL.getError()}`');
+        } else {
+            _debug('sdl / init game controllers');
+        }
+        #end
 
-            #if !snow_sdl_no_controller
-                status = SDL.initSubSystem(SDL_INIT_GAMECONTROLLER);
-                if(status == -1) {
-                    log('sdl / Could not initialize controller : `${SDL.getError()}`');
-                } else {
-                    _debug('sdl / init game controllers');
-                }
-            #end
+        #if !snow_sdl_no_joystick
+        status = SDL.initSubSystem(SDL_INIT_JOYSTICK);
+        if(status == -1) {
+            log('sdl / Could not initialize joystick : `${SDL.getError()}`');
+        } else {
+            _debug('sdl / init joystick');
+        }
+        #end
 
-            #if !snow_sdl_no_joystick
-                status = SDL.initSubSystem(SDL_INIT_JOYSTICK);
-                if(status == -1) {
-                    log('sdl / Could not initialize joystick : `${SDL.getError()}`');
-                } else {
-                    _debug('sdl / init joystick');
-                }
-            #end
+        #if !snow_sdl_no_haptic
+        status = SDL.initSubSystem(SDL_INIT_HAPTIC);
+        if(status == -1) {
+            log('sdl / Could not initialize haptic : `${SDL.getError()}`');
+        } else {
+            _debug('sdl / init haptic');
+        }
+        #end
 
-            #if !snow_sdl_no_haptic
-                status = SDL.initSubSystem(SDL_INIT_HAPTIC);
-                if(status == -1) {
-                    log('sdl / Could not initialize haptic : `${SDL.getError()}`');
-                } else {
-                    _debug('sdl / init haptic');
-                }
-            #end
+        /** mobile events */
 
-        //mobile events
-
-            #if (android || ios || tvos)
-                SDL.addEventWatch( event_watch, null );
-            #end
+        #if (android || ios || tvos)
+        SDL.addEventWatch( event_watch, null );
+        #end
 
         _debug('sdl / init ok');
 
-    } //new
+    }
 
     override function ready() {
-
         create_window();
 
         _debug('sdl / ready');
-
-    } //ready
+    }
 
     override function run() : Bool {
-
         _debug('sdl / run');
 
         return run_loop();
-
-    } //run
+    }
 
     override function shutdown(?_immediate:Bool=false) {
-
         if(!_immediate) {
             SDL.quit();
             _debug('sdl / shutdown');
         } else {
             _debug('sdl / shutdown immediate');
         }
-
-    } //shutdown
+    }
 
     override function window_grab(enable:Bool) : Bool {
-
         var res = SDL.setRelativeMouseMode(enable);
 
         return res == 0;
-
-    } //window_grab
+    }
 
     public function window_swap() {
-
         SDL.GL_SwapWindow(window);
-
-    } //window_swap
+    }
 
     override function window_fullscreen(enable:Bool, ?true_fullscreen:Bool=false) : Bool {
-
         var flag : SDLWindowFlags = (enable) ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0;
 
         if(true_fullscreen && enable) {
@@ -149,8 +141,7 @@ class Runtime extends snow.core.native.Runtime {
         }
 
         return SDL.setWindowFullscreen(window, flag) == 0;
-
-    } //window_fullscreen
+    }
 
     override inline public function window_width() :Int return window_w;
     override inline public function window_height() :Int return window_h;
@@ -167,45 +158,33 @@ class Runtime extends snow.core.native.Runtime {
 
         return _pixel_height / _device_height;
 
-    } //window_device_pixel_ratio
-
-
+    }
 
     static var timestamp_start : Float = 0.0;
     inline public static function timestamp() : Float {
-
         return Timestamp.now() - timestamp_start;
-
-    } //timestamp
+    }
 
     function run_loop() {
-
         var _done = true;
 
         #if (ios || tvos)
+        _done = false;
+        _debug('sdl / attaching iOS CADisplayLink loop');
+        SDL.iPhoneSetAnimationCallback(window, 1, loop, null);
+        #else
 
-            _done = false;
-            _debug('sdl / attaching iOS CADisplayLink loop');
-            SDL.iPhoneSetAnimationCallback(window, 1, loop, null);
-
-         #else
-
-            _debug('sdl / running main loop');
-
-            while(!app.shutting_down) {
-
-                loop(0);
-
-            }
+        _debug('sdl / running main loop');
+        while(!app.shutting_down) {
+            loop(0);
+        }
 
         #end
 
         return _done;
-
-    } //run_loop
+    }
 
     function loop(_) {
-
         while(SDL.hasAnEvent()) {
 
             var e = SDL.pollEvent();
@@ -216,22 +195,18 @@ class Runtime extends snow.core.native.Runtime {
             if(e.type == SDL_QUIT) {
                 app.dispatch_event(se_quit);
             }
-
-        } //SDL has event
+        }
 
         app.dispatch_event(se_tick);
 
         if(auto_swap && !app.has_shutdown) {
             window_swap();
         }
+    }
 
-    } //loop
 
-
-//Mobile
-
+    /** Mobile */
     function event_watch(_, e:sdl.Event) : Int {
-
         var _type:SystemEventType = se_unknown;
 
         switch(e.type) {
@@ -254,13 +229,10 @@ class Runtime extends snow.core.native.Runtime {
         app.dispatch_event(_type);
 
         return 1;
+    }
 
-    } //event_watch
-
-//Window
-
+    /** Window */
     function handle_window_ev(e:sdl.Event) {
-
         var _data1 = e.window.data1;
         var _data2 = e.window.data2;
 
@@ -302,15 +274,13 @@ class Runtime extends snow.core.native.Runtime {
                         window_w = _data1 = to_pixels(_data1);
                         window_h = _data2 = to_pixels(_data2);
                 case SDL_WINDOWEVENT_NONE:
-
-            } //switch
+            }
 
             if(_type != we_unknown) {
                 app.dispatch_window_event(_type, e.window.timestamp/1000.0, cast e.window.windowID, _data1, _data2);
             }
         }
-
-    } //handle_window_ev
+    }
 
     var window_w : Int = 0;
     var window_h : Int = 0;
@@ -320,7 +290,6 @@ class Runtime extends snow.core.native.Runtime {
     }
 
     function create_window() {
-
         _debug('sdl / creating window');
 
         var config = app.config.window;
@@ -330,7 +299,7 @@ class Runtime extends snow.core.native.Runtime {
         window_w = config.width;
         window_h = config.height;
 
-            //init SDL video subsystem
+        /** init SDL video subsystem */
         var status = SDL.initSubSystem(SDL_INIT_VIDEO);
         if(status != 0) {
             throw Error.init('runtime / sdl / failed to init video / `${SDL.getError()}`');
@@ -338,7 +307,7 @@ class Runtime extends snow.core.native.Runtime {
             _debug('sdl / init video');
         }
 
-            //create window
+        /** create window */
         window = SDL.createWindow((cast config.title:String), config.x, config.y, config.width, config.height, window_flags(config));
 
         if(window == null) {
@@ -358,17 +327,15 @@ class Runtime extends snow.core.native.Runtime {
 
         //:todo:runtime:sdl: The updated window/render configs aren't accessible anymore
         
-            //start with a copy
+        /** start with a copy */
         var actual_config = app.copy_window_config(config);
         var actual_render = app.copy_render_config(app.config.render);
 
         actual_config = update_window_config(window, actual_config);
         actual_render = update_render_config(window, actual_render);
-
-    } //create_window
+    }
 
     function create_render_context(_window:sdl.Window) : Bool {
-
         gl = SDL.GL_CreateContext(_window);
 
         var _success = gl.isnull() == false;
@@ -376,42 +343,37 @@ class Runtime extends snow.core.native.Runtime {
         _debug('sdl / GL init / $_success');
 
         return _success;
-
-    } //
+    }
 
     function post_render_context(_window:sdl.Window) {
-
         SDL.GL_MakeCurrent(_window, gl);
 
         #if snow_use_glew
-            var _result = GLEW.init();
-            if(_result != GLEW.OK) {
-                throw Error.error('runtime / sdl / failed to setup created render context, unable to recover / `${GLEW.error(_result)}`');
-            } else {
-                _debug('sdl / GLEW init / ok');
-            }
+        var _result = GLEW.init();
+        if(_result != GLEW.OK) {
+            throw Error.error('runtime / sdl / failed to setup created render context, unable to recover / `${GLEW.error(_result)}`');
+        } else {
+            _debug('sdl / GLEW init / ok');
+        }
         #end
 
-            //also clear the garbage in both front/back buffer
+        /** also clear the garbage in both front/back buffer */
         #if (!snow_no_initial_glclear && linc_opengl)
 
-            var color = app.config.render.default_clear;
+        var color = app.config.render.default_clear;
 
-            GL.clearDepth(1.0);
-            GL.clearStencil(0);
-            GL.clearColor(color.r, color.g, color.b, color.a);
-            GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT | GL.STENCIL_BUFFER_BIT);
-            window_swap();
-            GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT | GL.STENCIL_BUFFER_BIT);
+        GL.clearDepth(1.0);
+        GL.clearStencil(0);
+        GL.clearColor(color.r, color.g, color.b, color.a);
+        GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT | GL.STENCIL_BUFFER_BIT);
+        window_swap();
+        GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT | GL.STENCIL_BUFFER_BIT);
 
         #end
+    }
 
-    } //post_render_context
-
-//Default flags and attributes
-
+    /** Default flags and attributes */
     function apply_GL_attr(render:RenderConfig) {
-
         _debug('sdl / GL / RBGA / ${render.red_bits} ${render.green_bits} ${render.blue_bits} ${render.alpha_bits}');
 
         SDL.GL_SetAttribute(SDL_GL_RED_SIZE,     render.red_bits);
@@ -439,7 +401,6 @@ class Runtime extends snow.core.native.Runtime {
         _debug('sdl / GL / profile / ${render.opengl.profile}');
 
         switch(render.opengl.profile) {
-
             case compatibility:
                SDL.GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDLGLprofile.SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
 
@@ -455,19 +416,16 @@ class Runtime extends snow.core.native.Runtime {
                     render.opengl.major = 2;
                     render.opengl.minor = 0;
                 }
-
-        } // profile
+        }
 
         if(render.opengl.major != 0) {
             _debug('sdl / GL / version / ${render.opengl.major}.${render.opengl.minor}');
             SDL.GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, render.opengl.major);
             SDL.GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, render.opengl.minor);
         }
-
-    } //apply_GL_attr
+    }
 
     function window_flags(config:WindowConfig) {
-
         var flags : SDLWindowFlags = cast 0;
 
         flags |= SDL_WINDOW_OPENGL;
@@ -481,21 +439,19 @@ class Runtime extends snow.core.native.Runtime {
                 flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
             } else {
                 #if !mac
-                    flags |= SDL_WINDOW_FULLSCREEN;
+                flags |= SDL_WINDOW_FULLSCREEN;
                 #end
             }
         }
 
         return flags;
-
-    } //window_flags
+    }
 
     function update_window_config(_window:sdl.Window, config:WindowConfig) : WindowConfig {
-
         if(config.fullscreen) {
             if(config.true_fullscreen) {
                 #if mac
-                    SDL.setWindowFullscreen(_window, SDL_WINDOW_FULLSCREEN);
+                SDL.setWindowFullscreen(_window, SDL_WINDOW_FULLSCREEN);
                 #end
             }
         }
@@ -512,11 +468,9 @@ class Runtime extends snow.core.native.Runtime {
         _debug('sdl / window / x:${config.x} y:${config.y} w:${config.width} h:${config.height} / scale $window_dpr');
 
         return config;
-
-    } //update_window_config
+    }
 
     function update_render_config(_window:sdl.Window, render:RenderConfig) : RenderConfig {
-
         render.antialiasing = SDL.GL_GetAttribute(SDL_GL_MULTISAMPLESAMPLES);
         render.red_bits     = SDL.GL_GetAttribute(SDL_GL_RED_SIZE);
         render.green_bits   = SDL.GL_GetAttribute(SDL_GL_GREEN_SIZE);
@@ -530,7 +484,6 @@ class Runtime extends snow.core.native.Runtime {
 
         var profile: SDLGLprofile = SDL.GL_GetAttribute(SDL_GL_CONTEXT_PROFILE_MASK);
         switch(profile) {
-
             case SDL_GL_CONTEXT_PROFILE_COMPATIBILITY:
                render.opengl.profile = compatibility;
 
@@ -539,21 +492,15 @@ class Runtime extends snow.core.native.Runtime {
 
             case SDL_GL_CONTEXT_PROFILE_ES:
                render.opengl.profile = gles;
-
-        } // profile
+        }
 
         return render;
+    }
 
-    } //update_render_config
-
-//Input
-
+    /** Input */
     function handle_input_ev(e:sdl.Event) {
-
         switch(e.type) {
-
-            //keys
-
+                /** keys */
                 case SDL_KEYDOWN:
                     app.input.dispatch_key_down_event(
                         e.key.keysym.sym,
@@ -591,8 +538,7 @@ class Runtime extends snow.core.native.Runtime {
                         cast e.text.windowID
                     );
 
-            //mouse
-
+                /**mouse */
                 case SDL_MOUSEMOTION:
                     app.input.dispatch_mouse_move_event(
                         to_pixels(e.motion.x),
@@ -626,8 +572,7 @@ class Runtime extends snow.core.native.Runtime {
                         cast e.wheel.windowID
                     );
 
-            //touch
-
+                /** touch */
                 case SDL_FINGERDOWN:
                     app.input.dispatch_touch_down_event(
                         e.tfinger.x,
@@ -656,10 +601,8 @@ class Runtime extends snow.core.native.Runtime {
                         e.tfinger.timestamp/1000.0
                     );
 
-            //joystick events
-
+                /** joystick events */
                 case SDL_JOYAXISMOTION:
-
                     if(!SDL.isGameController(e.jaxis.which)) {
                          //(range: -32768 to 32767)
                         var _val:Float = (e.jaxis.value+32768)/(32767+32768);
@@ -673,7 +616,6 @@ class Runtime extends snow.core.native.Runtime {
                     }
 
                 case SDL_JOYBUTTONDOWN:
-
                     if(!SDL.isGameController(e.jbutton.which)) {
                         app.input.dispatch_gamepad_button_down_event(
                             e.jbutton.which,
@@ -684,7 +626,6 @@ class Runtime extends snow.core.native.Runtime {
                     }
 
                 case SDL_JOYBUTTONUP:
-
                     if(!SDL.isGameController(e.jbutton.which)) {
                         app.input.dispatch_gamepad_button_up_event(
                             e.jbutton.which,
@@ -695,7 +636,6 @@ class Runtime extends snow.core.native.Runtime {
                     }
 
                 case SDL_JOYDEVICEADDED:
-
                     if(!SDL.isGameController(e.jdevice.which)) {
                         var _joystick = SDL.joystickOpen(e.jdevice.which);
                         joysticks.set(e.jdevice.which, _joystick);
@@ -707,8 +647,8 @@ class Runtime extends snow.core.native.Runtime {
                             e.jdevice.timestamp/1000.0
                         );
                     }
-                case SDL_JOYDEVICEREMOVED:
 
+                case SDL_JOYDEVICEREMOVED:
                     if(!SDL.isGameController(e.jdevice.which)) {
                         var _joystick = joysticks.get(e.jdevice.which);
                         SDL.joystickClose(_joystick);
@@ -722,8 +662,7 @@ class Runtime extends snow.core.native.Runtime {
                         );
                     }
 
-            //gamepad
-
+                /** gamepad */
                 case SDL_CONTROLLERAXISMOTION:
                      //(range: -32768 to 32767)
                     var _val:Float = (e.caxis.value+32768)/(32767+32768);
@@ -734,6 +673,7 @@ class Runtime extends snow.core.native.Runtime {
                         _normalized_val,
                         e.caxis.timestamp/1000.0
                     );
+
                 case SDL_CONTROLLERBUTTONDOWN:
                     app.input.dispatch_gamepad_button_down_event(
                         e.cbutton.which,
@@ -741,6 +681,7 @@ class Runtime extends snow.core.native.Runtime {
                         1,
                         e.cbutton.timestamp/1000.0
                     );
+
                 case SDL_CONTROLLERBUTTONUP:
                     app.input.dispatch_gamepad_button_up_event(
                         e.cbutton.which,
@@ -748,6 +689,7 @@ class Runtime extends snow.core.native.Runtime {
                         0,
                         e.cbutton.timestamp/1000.0
                     );
+
                 case SDL_CONTROLLERDEVICEADDED:
 
                     var _gamepad = SDL.gameControllerOpen(e.cdevice.which);
@@ -759,6 +701,7 @@ class Runtime extends snow.core.native.Runtime {
                         GamepadDeviceEventType.ge_device_added,
                         e.cdevice.timestamp/1000.0
                     );
+
                 case SDL_CONTROLLERDEVICEREMOVED:
 
                     var _gamepad = gamepads.get(e.cdevice.which);
@@ -771,6 +714,7 @@ class Runtime extends snow.core.native.Runtime {
                         GamepadDeviceEventType.ge_device_removed,
                         e.cdevice.timestamp/1000.0
                     );
+
                 case SDL_CONTROLLERDEVICEREMAPPED:
                     app.input.dispatch_gamepad_device_event(
                         e.cdevice.which,
@@ -779,10 +723,8 @@ class Runtime extends snow.core.native.Runtime {
                         e.cdevice.timestamp/1000.0
                     );
                 case _:
-
-        } //switch
-
-    } //handle_input_ev
+        }
+    }
 
     /** Helper to return a `ModState` (shift, ctrl etc) from a given `InputEvent` */
     function to_key_mod(mod_value:Int) : ModState {
@@ -808,15 +750,11 @@ class Runtime extends snow.core.native.Runtime {
             app.input.mod_state.meta    = (mod_value == KMOD_GUI   || mod_value == KMOD_LGUI   || mod_value == KMOD_RGUI);
 
         return app.input.mod_state;
-
-    } //to_key_mod
-
-} //Runtime
+    }
+}
 
 typedef WindowHandle = sdl.Window;
 
 typedef RuntimeConfig = {
-    
     //:todo: potential sdl runtime config
-
-} //RuntimeConfig
+}

@@ -20,12 +20,13 @@ typedef MapIntFloat = Map<Int, Float>;
 @:allow(snow.Snow)
 class Input {
 
-        /** access to snow from subsystems */
+    /** access to snow from subsystems */
     var app : Snow;
 
-        /** An internal value for how many gamepads to pre-set up at creation time */
+    /** An internal value for how many gamepads to pre-set up at creation time */
     var gamepad_init_count = 16;
-        /** A prealloacated input event for dispatching */
+
+    /** A prealloacated input event for dispatching */
     var event: InputEvent;
     var key_event: KeyEvent;
     var text_event: TextEvent;
@@ -36,7 +37,7 @@ class Input {
     @:allow(snow.core.Runtime)
     var mod_state: ModState;
 
-        /** Constructed internally, use `app.input` */
+    /** Constructed internally, use `app.input` */
     function new( _app:Snow ) {
 
         app = _app;
@@ -49,46 +50,41 @@ class Input {
         mod_state = new ModState();
         mod_state.none = true;
 
-        //keys
+        /** keys */
+        key_code_pressed = new Map();
+        key_code_down = new Map();
+        key_code_released = new Map();
 
-            key_code_pressed = new Map();
-            key_code_down = new Map();
-            key_code_released = new Map();
+        scan_code_pressed = new Map();
+        scan_code_down = new Map();
+        scan_code_released = new Map();
 
-            scan_code_pressed = new Map();
-            scan_code_down = new Map();
-            scan_code_released = new Map();
+        /** mouse */
+        mouse_button_pressed = new Map();
+        mouse_button_down = new Map();
+        mouse_button_released = new Map();
 
-        //mouse
-
-            mouse_button_pressed = new Map();
-            mouse_button_down = new Map();
-            mouse_button_released = new Map();
-
-        //gamepad
-
-            gamepad_button_pressed = new Map();
-            gamepad_button_down = new Map();
-            gamepad_button_released = new Map();
-            gamepad_axis_values = new Map();
+        /** gamepad */
+        gamepad_button_pressed = new Map();
+        gamepad_button_down = new Map();
+        gamepad_button_released = new Map();
+        gamepad_axis_values = new Map();
             
-            for(i in 0...gamepad_init_count) {
-                gamepad_button_pressed.set(i, new Map());
-                gamepad_button_down.set(i, new Map());
-                gamepad_button_released.set(i, new Map());
-                gamepad_axis_values.set(i, new Map());
-            }
+        for(i in 0...gamepad_init_count) {
+            gamepad_button_pressed.set(i, new Map());
+            gamepad_button_down.set(i, new Map());
+            gamepad_button_released.set(i, new Map());
+            gamepad_axis_values.set(i, new Map());
+        }
 
-        //touch
+        /** touch */
+        touches_down = new Map();
+    }
 
-            touches_down = new Map();
-
-    } //new
-
-        /** Destroy and clean up etc. */
+    /** Destroy and clean up etc. */
     function shutdown() {
 
-    } //shutdown
+    }
 
 //Public facing API
 

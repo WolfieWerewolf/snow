@@ -129,7 +129,6 @@ but they aren't specific to SDL so they are used generically */
             case Keycodes.delete:    return Scancodes.name(Scancodes.delete);
 
             default: {
-
                 var decoder = new haxe.Utf8();
                     decoder.addChar(keycode);
 

@@ -7,11 +7,6 @@ import snow.api.Promise;
 import snow.api.Debug.*;
 
 import snow.api.buffers.Uint8Array;
-//import snow.api.buffers.ArrayBufferView;
-//import snow.api.buffers.DataView;
-//import snow.core.native.io.IO.FileSeek;
-//
-//import stb.Image;
 
 @:allow(snow.systems.assets.Assets)
 class Assets implements snow.modules.interfaces.Assets {
@@ -21,14 +16,11 @@ class Assets implements snow.modules.interfaces.Assets {
     function onevent(event:SystemEvent):Void {}
     function shutdown() {}
 
-//images
-
+    /** images */
     public function image_info_from_load(_path:String, ?_components:Int = 4) : Promise {
-
         assertnull(_path);
 
         return new Promise(function(resolve, reject) {
-
             var _image = image_info_from_load_direct(_path, _components);
 
             if(_image == null) {
@@ -37,14 +29,11 @@ class Assets implements snow.modules.interfaces.Assets {
             } else {
                 resolve(_image);
             }
-
-        }); //promise
-
-    } //image_info_from_load
+        });
+    }
 
     var load_direct_err = 0;
     public function image_info_from_load_direct(_path:String, ?_components:Int = 4) : ImageData {
-
         assertnull(_path);
 
         load_direct_err = 0;
@@ -65,11 +54,9 @@ class Assets implements snow.modules.interfaces.Assets {
         app.io.module.file_close(_handle);
 
         return image_info_from_bytes_direct(_path, _file, _components);
-
-    } //image_info_from_load
+    }
 
     public function image_info_from_bytes(_id:String, _bytes:Uint8Array, ?_components:Int = 4) : Promise {
-
         assertnull(_id);
         assertnull(_bytes);
 
@@ -82,13 +69,10 @@ class Assets implements snow.modules.interfaces.Assets {
             } else {
                 resolve(_image);
             }
-
-        }); //promise
-
-    } //image_info_from_bytes
+        });
+    }
 
     public function image_info_from_bytes_direct(_id:String, _bytes:Uint8Array, ?_components:Int=4) : ImageData {
-
         assertnull(_id);
         assertnull(_bytes);
 
@@ -108,13 +92,11 @@ class Assets implements snow.modules.interfaces.Assets {
             width_actual : _info.w,
             height_actual : _info.h,
             bpp_source : _info.comp,
-            pixels : Uint8Array.fromBuffer(_info.bytes, 0, _info.bytes.length) //new Uint8Array( _pixel_bytes )
+            pixels : Uint8Array.fromBuffer(_info.bytes, 0, _info.bytes.length)
         });
-
-    } //info_from_bytes
+    }
 
     public function image_info_from_pixels(_id:String, _width:Int, _height:Int, _pixels:Uint8Array, ?_bpp:Int=4) : ImageData {
-
         assertnull( _id );
         assertnull( _pixels );
 
@@ -128,9 +110,5 @@ class Assets implements snow.modules.interfaces.Assets {
             bpp_source : _bpp,
             pixels : _pixels
         });
-
-    } //image_info_from_pixels
-
-
-} //Assets
-
+    }
+}

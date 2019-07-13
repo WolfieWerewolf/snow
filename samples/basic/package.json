@@ -1,0 +1,12 @@
+{
+  "name": "basic",
+  "version": "1.0.0",
+  "description": "This sample draws a single block and moves it.",
+  "main": "index.js",
+  "author": "",
+  "license": "ISC",
+  "scripts": {
+    "cpp": "./cpp.sh",
+    "web": "./web.sh"
+  }
+}

@@ -273,7 +273,7 @@ class GL {
     inline public static function isBuffer(buffer:GLBuffer):Bool
         return gl.isBuffer(buffer);
 
-    // This is non-static
+    /** This is non-static */
     // public function isContextLost():Bool { return false; }
 
     inline public static function isEnabled(cap:Int):Bool
@@ -445,19 +445,16 @@ class GL {
     inline public static function viewport(x:Int, y:Int, width:Int, height:Int):Void
         gl.viewport(x, y, width, height);
 
-
-// getters/setters
-
     static function get_version():Int { return RenderingContext.VERSION; }
 
-//defines
+    /** defines */
 
-    /* ClearBufferMask */
+    /** ClearBufferMask */
     public static inline var DEPTH_BUFFER_BIT               = 0x00000100;
     public static inline var STENCIL_BUFFER_BIT             = 0x00000400;
     public static inline var COLOR_BUFFER_BIT               = 0x00004000;
 
-    /* BeginMode */
+    /** BeginMode */
     public static inline var POINTS                         = 0x0000;
     public static inline var LINES                          = 0x0001;
     public static inline var LINE_LOOP                      = 0x0002;
@@ -466,17 +463,17 @@ class GL {
     public static inline var TRIANGLE_STRIP                 = 0x0005;
     public static inline var TRIANGLE_FAN                   = 0x0006;
 
-    /* AlphaFunction(not supported in ES20) */
-    /*      NEVER */
-    /*      LESS */
-    /*      EQUAL */
-    /*      LEQUAL */
-    /*      GREATER */
-    /*      NOTEQUAL */
-    /*      GEQUAL */
-    /*      ALWAYS */
+    /** AlphaFunction(not supported in ES20) */
+    /**      NEVER */
+    /**      LESS */
+    /**      EQUAL */
+    /**      LEQUAL */
+    /**      GREATER */
+    /**      NOTEQUAL */
+    /**      GEQUAL */
+    /**      ALWAYS */
 
-    /* BlendingFactorDest */
+    /** BlendingFactorDest */
     public static inline var ZERO                           = 0;
     public static inline var ONE                            = 1;
     public static inline var SRC_COLOR                      = 0x0300;
@@ -486,28 +483,28 @@ class GL {
     public static inline var DST_ALPHA                      = 0x0304;
     public static inline var ONE_MINUS_DST_ALPHA            = 0x0305;
 
-    /* BlendingFactorSrc */
-    /*      ZERO */
-    /*      ONE */
+    /** BlendingFactorSrc */
+    /**      ZERO */
+    /**      ONE */
     public static inline var DST_COLOR                      = 0x0306;
     public static inline var ONE_MINUS_DST_COLOR            = 0x0307;
     public static inline var SRC_ALPHA_SATURATE             = 0x0308;
-    /*      SRC_ALPHA */
-    /*      ONE_MINUS_SRC_ALPHA */
-    /*      DST_ALPHA */
-    /*      ONE_MINUS_DST_ALPHA */
+    /**      SRC_ALPHA */
+    /**      ONE_MINUS_SRC_ALPHA */
+    /**      DST_ALPHA */
+    /**      ONE_MINUS_DST_ALPHA */
 
-    /* BlendEquationSeparate */
+    /** BlendEquationSeparate */
     public static inline var FUNC_ADD                       = 0x8006;
     public static inline var BLEND_EQUATION                 = 0x8009;
-    public static inline var BLEND_EQUATION_RGB             = 0x8009;   /* same as BLEND_EQUATION */
+    public static inline var BLEND_EQUATION_RGB             = 0x8009;   /** same as BLEND_EQUATION */
     public static inline var BLEND_EQUATION_ALPHA           = 0x883D;
 
-    /* BlendSubtract */
+    /** BlendSubtract */
     public static inline var FUNC_SUBTRACT                  = 0x800A;
     public static inline var FUNC_REVERSE_SUBTRACT          = 0x800B;
 
-    /* Separate Blend Functions */
+    /** Separate Blend Functions */
     public static inline var BLEND_DST_RGB                  = 0x80C8;
     public static inline var BLEND_SRC_RGB                  = 0x80C9;
     public static inline var BLEND_DST_ALPHA                = 0x80CA;
@@ -518,7 +515,7 @@ class GL {
     public static inline var ONE_MINUS_CONSTANT_ALPHA       = 0x8004;
     public static inline var BLEND_COLOR                    = 0x8005;
 
-    /* GLBuffer Objects */
+    /** GLBuffer Objects */
     public static inline var ARRAY_BUFFER                   = 0x8892;
     public static inline var ELEMENT_ARRAY_BUFFER           = 0x8893;
     public static inline var ARRAY_BUFFER_BINDING           = 0x8894;
@@ -533,23 +530,23 @@ class GL {
 
     public static inline var CURRENT_VERTEX_ATTRIB          = 0x8626;
 
-    /* CullFaceMode */
+    /** CullFaceMode */
     public static inline var FRONT                          = 0x0404;
     public static inline var BACK                           = 0x0405;
     public static inline var FRONT_AND_BACK                 = 0x0408;
 
-    /* DepthFunction */
-    /*      NEVER */
-    /*      LESS */
-    /*      EQUAL */
-    /*      LEQUAL */
-    /*      GREATER */
-    /*      NOTEQUAL */
-    /*      GEQUAL */
-    /*      ALWAYS */
+    /** DepthFunction */
+    /**      NEVER */
+    /**      LESS */
+    /**      EQUAL */
+    /**      LEQUAL */
+    /**      GREATER */
+    /**      NOTEQUAL */
+    /**      GEQUAL */
+    /**      ALWAYS */
 
-    /* EnableCap */
-    /* TEXTURE_2D */
+    /** EnableCap */
+    /** TEXTURE_2D */
     public static inline var CULL_FACE                      = 0x0B44;
     public static inline var BLEND                          = 0x0BE2;
     public static inline var DITHER                         = 0x0BD0;
@@ -560,18 +557,18 @@ class GL {
     public static inline var SAMPLE_ALPHA_TO_COVERAGE       = 0x809E;
     public static inline var SAMPLE_COVERAGE                = 0x80A0;
 
-    /* ErrorCode */
+    /** ErrorCode */
     public static inline var NO_ERROR                       = 0;
     public static inline var INVALID_ENUM                   = 0x0500;
     public static inline var INVALID_VALUE                  = 0x0501;
     public static inline var INVALID_OPERATION              = 0x0502;
     public static inline var OUT_OF_MEMORY                  = 0x0505;
 
-    /* FrontFaceDirection */
+    /** FrontFaceDirection */
     public static inline var CW                             = 0x0900;
     public static inline var CCW                            = 0x0901;
 
-    /* GetPName */
+    /** GetPName */
     public static inline var LINE_WIDTH                     = 0x0B21;
     public static inline var ALIASED_POINT_SIZE_RANGE       = 0x846D;
     public static inline var ALIASED_LINE_WIDTH_RANGE       = 0x846E;
@@ -598,7 +595,7 @@ class GL {
     public static inline var STENCIL_BACK_WRITEMASK         = 0x8CA5;
     public static inline var VIEWPORT                       = 0x0BA2;
     public static inline var SCISSOR_BOX                    = 0x0C10;
-    /*      SCISSOR_TEST */
+    /**      SCISSOR_TEST */
     public static inline var COLOR_CLEAR_VALUE              = 0x0C22;
     public static inline var COLOR_WRITEMASK                = 0x0C23;
     public static inline var UNPACK_ALIGNMENT               = 0x0CF5;
@@ -613,7 +610,7 @@ class GL {
     public static inline var DEPTH_BITS                     = 0x0D56;
     public static inline var STENCIL_BITS                   = 0x0D57;
     public static inline var POLYGON_OFFSET_UNITS           = 0x2A00;
-    /*      POLYGON_OFFSET_FILL */
+    /**      POLYGON_OFFSET_FILL */
     public static inline var POLYGON_OFFSET_FACTOR          = 0x8038;
     public static inline var TEXTURE_BINDING_2D             = 0x8069;
     public static inline var SAMPLE_BUFFERS                 = 0x80A8;
@@ -621,23 +618,23 @@ class GL {
     public static inline var SAMPLE_COVERAGE_VALUE          = 0x80AA;
     public static inline var SAMPLE_COVERAGE_INVERT         = 0x80AB;
 
-    /* GetTextureParameter */
-    /*      TEXTURE_MAG_FILTER */
-    /*      TEXTURE_MIN_FILTER */
-    /*      TEXTURE_WRAP_S */
-    /*      TEXTURE_WRAP_T */
+    /** GetTextureParameter */
+    /**      TEXTURE_MAG_FILTER */
+    /**      TEXTURE_MIN_FILTER */
+    /**      TEXTURE_WRAP_S */
+    /**      TEXTURE_WRAP_T */
 
     public static inline var COMPRESSED_TEXTURE_FORMATS     = 0x86A3;
 
-    /* HintMode */
+    /** HintMode */
     public static inline var DONT_CARE                      = 0x1100;
     public static inline var FASTEST                        = 0x1101;
     public static inline var NICEST                         = 0x1102;
 
-    /* HintTarget */
+    /** HintTarget */
     public static inline var GENERATE_MIPMAP_HINT            = 0x8192;
 
-    /* DataType */
+    /** DataType */
     public static inline var BYTE                           = 0x1400;
     public static inline var UNSIGNED_BYTE                  = 0x1401;
     public static inline var SHORT                          = 0x1402;
@@ -646,7 +643,7 @@ class GL {
     public static inline var UNSIGNED_INT                   = 0x1405;
     public static inline var FLOAT                          = 0x1406;
 
-    /* PixelFormat */
+    /** PixelFormat */
     public static inline var DEPTH_COMPONENT                = 0x1902;
     public static inline var ALPHA                          = 0x1906;
     public static inline var RGB                            = 0x1907;
@@ -654,13 +651,13 @@ class GL {
     public static inline var LUMINANCE                      = 0x1909;
     public static inline var LUMINANCE_ALPHA                = 0x190A;
 
-    /* PixelType */
-    /*      UNSIGNED_BYTE */
+    /** PixelType */
+    /**      UNSIGNED_BYTE */
     public static inline var UNSIGNED_SHORT_4_4_4_4         = 0x8033;
     public static inline var UNSIGNED_SHORT_5_5_5_1         = 0x8034;
     public static inline var UNSIGNED_SHORT_5_6_5           = 0x8363;
 
-    /* Shaders */
+    /** Shaders */
     public static inline var FRAGMENT_SHADER                  = 0x8B30;
     public static inline var VERTEX_SHADER                    = 0x8B31;
     public static inline var MAX_VERTEX_ATTRIBS               = 0x8869;
@@ -680,7 +677,7 @@ class GL {
     public static inline var SHADING_LANGUAGE_VERSION         = 0x8B8C;
     public static inline var CURRENT_PROGRAM                  = 0x8B8D;
 
-    /* StencilFunction */
+    /** StencilFunction */
     public static inline var NEVER                          = 0x0200;
     public static inline var LESS                           = 0x0201;
     public static inline var EQUAL                          = 0x0202;
@@ -690,8 +687,8 @@ class GL {
     public static inline var GEQUAL                         = 0x0206;
     public static inline var ALWAYS                         = 0x0207;
 
-    /* StencilOp */
-    /*      ZERO */
+    /** StencilOp */
+    /**      ZERO */
     public static inline var KEEP                           = 0x1E00;
     public static inline var REPLACE                        = 0x1E01;
     public static inline var INCR                           = 0x1E02;
@@ -700,30 +697,30 @@ class GL {
     public static inline var INCR_WRAP                      = 0x8507;
     public static inline var DECR_WRAP                      = 0x8508;
 
-    /* StringName */
+    /** StringName */
     public static inline var VENDOR                         = 0x1F00;
     public static inline var RENDERER                       = 0x1F01;
     public static inline var VERSION                        = 0x1F02;
 
-    /* TextureMagFilter */
+    /** TextureMagFilter */
     public static inline var NEAREST                        = 0x2600;
     public static inline var LINEAR                         = 0x2601;
 
-    /* TextureMinFilter */
-    /*      NEAREST */
-    /*      LINEAR */
+    /** TextureMinFilter */
+    /**      NEAREST */
+    /**      LINEAR */
     public static inline var NEAREST_MIPMAP_NEAREST         = 0x2700;
     public static inline var LINEAR_MIPMAP_NEAREST          = 0x2701;
     public static inline var NEAREST_MIPMAP_LINEAR          = 0x2702;
     public static inline var LINEAR_MIPMAP_LINEAR           = 0x2703;
 
-    /* TextureParameterName */
+    /** TextureParameterName */
     public static inline var TEXTURE_MAG_FILTER             = 0x2800;
     public static inline var TEXTURE_MIN_FILTER             = 0x2801;
     public static inline var TEXTURE_WRAP_S                 = 0x2802;
     public static inline var TEXTURE_WRAP_T                 = 0x2803;
 
-    /* TextureTarget */
+    /** TextureTarget */
     public static inline var TEXTURE_2D                     = 0x0DE1;
     public static inline var TEXTURE                        = 0x1702;
 
@@ -737,7 +734,7 @@ class GL {
     public static inline var TEXTURE_CUBE_MAP_NEGATIVE_Z    = 0x851A;
     public static inline var MAX_CUBE_MAP_TEXTURE_SIZE      = 0x851C;
 
-    /* TextureUnit */
+    /** TextureUnit */
     public static inline var TEXTURE0                       = 0x84C0;
     public static inline var TEXTURE1                       = 0x84C1;
     public static inline var TEXTURE2                       = 0x84C2;
@@ -772,12 +769,12 @@ class GL {
     public static inline var TEXTURE31                      = 0x84DF;
     public static inline var ACTIVE_TEXTURE                 = 0x84E0;
 
-    /* TextureWrapMode */
+    /** TextureWrapMode */
     public static inline var REPEAT                         = 0x2901;
     public static inline var CLAMP_TO_EDGE                  = 0x812F;
     public static inline var MIRRORED_REPEAT                = 0x8370;
 
-    /* Uniform Types */
+    /** Uniform Types */
     public static inline var FLOAT_VEC2                     = 0x8B50;
     public static inline var FLOAT_VEC3                     = 0x8B51;
     public static inline var FLOAT_VEC4                     = 0x8B52;
@@ -794,7 +791,7 @@ class GL {
     public static inline var SAMPLER_2D                     = 0x8B5E;
     public static inline var SAMPLER_CUBE                   = 0x8B60;
 
-    /* Vertex Arrays */
+    /** Vertex Arrays */
     public static inline var VERTEX_ATTRIB_ARRAY_ENABLED        = 0x8622;
     public static inline var VERTEX_ATTRIB_ARRAY_SIZE           = 0x8623;
     public static inline var VERTEX_ATTRIB_ARRAY_STRIDE         = 0x8624;
@@ -803,14 +800,14 @@ class GL {
     public static inline var VERTEX_ATTRIB_ARRAY_POINTER        = 0x8645;
     public static inline var VERTEX_ATTRIB_ARRAY_BUFFER_BINDING = 0x889F;
 
-    /* Point Size */
+    /** Point Size */
     public static inline var VERTEX_PROGRAM_POINT_SIZE       = 0x8642;
     public static inline var POINT_SPRITE                    = 0x8861;
 
-    /* GLShader Source */
+    /** GLShader Source */
     public static inline var COMPILE_STATUS                 = 0x8B81;
 
-    /* GLShader Precision-Specified Types */
+    /** GLShader Precision-Specified Types */
     public static inline var LOW_FLOAT                      = 0x8DF0;
     public static inline var MEDIUM_FLOAT                   = 0x8DF1;
     public static inline var HIGH_FLOAT                     = 0x8DF2;
@@ -818,7 +815,7 @@ class GL {
     public static inline var MEDIUM_INT                     = 0x8DF4;
     public static inline var HIGH_INT                       = 0x8DF5;
 
-    /* GLFramebuffer Object. */
+    /** GLFramebuffer Object. */
     public static inline var FRAMEBUFFER                    = 0x8D40;
     public static inline var RENDERBUFFER                   = 0x8D41;
 
@@ -864,15 +861,12 @@ class GL {
 
     public static inline var INVALID_FRAMEBUFFER_OPERATION  = 0x0506;
 
-    /* WebGL-specific enums */
-    public static inline var UNPACK_FLIP_Y_WEBGL            = 0x9240;
-    public static inline var UNPACK_PREMULTIPLY_ALPHA_WEBGL = 0x9241;
-    public static inline var CONTEXT_LOST_WEBGL             = 0x9242;
+    /** WebGL-specific enums */
+    public static inline var UNPACK_FLIP_Y_WEBGL                = 0x9240;
+    public static inline var UNPACK_PREMULTIPLY_ALPHA_WEBGL     = 0x9241;
+    public static inline var CONTEXT_LOST_WEBGL                 = 0x9242;
     public static inline var UNPACK_COLORSPACE_CONVERSION_WEBGL = 0x9243;
-    public static inline var BROWSER_DEFAULT_WEBGL          = 0x9244;
-
-
-
+    public static inline var BROWSER_DEFAULT_WEBGL              = 0x9244;
 }
 
-#end //snow_web
+#end

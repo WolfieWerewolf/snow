@@ -9,8 +9,7 @@ private enum LogError {
 }
 
 class Debug {
-
-        //default to `log`
+    /** default to `log` */
     static var _level : Int = 1;
     static var _filter : Array<String>;
     static var _exclude : Array<String>;
@@ -19,23 +18,22 @@ class Debug {
     macro public static function get_level() : haxe.macro.Expr {
         return macro $v{ ${snow.api.Debug._level} };
     }
+
     macro public static function get_filter() : haxe.macro.Expr {
         return macro $v{ ${snow.api.Debug._filter} };
     }
+
     macro public static function get_exclude() : haxe.macro.Expr {
         return macro $v{ ${snow.api.Debug._exclude} };
     }
 
-    macro static function level( __level:Int ) : haxe.macro.Expr {
-
+    macro static function level( __level:Int) : haxe.macro.Expr {
         _level = __level;
 
         return macro null;
+    }
 
-    } //level
-
-    macro static function filter( __filter:String ) : haxe.macro.Expr {
-
+    macro static function filter( __filter:String) : haxe.macro.Expr {
         _filter = __filter.split(',');
 
         var _index = 0;
@@ -45,11 +43,9 @@ class Debug {
         }
 
         return macro null;
+    }
 
-    } //filter
-
-    macro static function exclude( __exclude:String ) : haxe.macro.Expr {
-
+    macro static function exclude(__exclude:String) : haxe.macro.Expr {
         _exclude = __exclude.split(',');
 
         var _index = 0;
@@ -60,21 +56,19 @@ class Debug {
 
         return macro null;
 
-    } //exclude
+    }
 
-    macro static function width( _width:Int ) : haxe.macro.Expr {
-
+    macro static function width(_width:Int) : haxe.macro.Expr {
         _log_width = _width;
 
         return macro null;
 
-    } //width
+    }
 
-        //This macro uses the defined log level value to reject code that
-        //shouldn't even exist at runtime , like low level debug information
-        //and logging by injecting or not injecting code
-    macro public static function log( value:Dynamic ) : Expr {
-
+    /** This macro uses the defined log level value to reject code that
+        shouldn't even exist at runtime , like low level debug information
+        and logging by injecting or not injecting code */
+    macro public static function log(value:Dynamic) : Expr {
         var _file = Path.withoutDirectory(Context.getPosInfos(Context.currentPos()).file);
         var _context = Path.withoutExtension(_file).toLowerCase();
         var _spaces = _get_spacing(_file);
@@ -86,7 +80,7 @@ class Debug {
                     default: throw LogError.RequireString('log_as meta requires a string constant like "name"');
                 }
             }
-        } //for each meta
+        }
 
         var _log = (_level > 0);
 
@@ -104,10 +98,9 @@ class Debug {
 
         return macro null;
 
-    } //log
+    }
 
-    macro public static function _debug( value:Dynamic ) : Expr {
-
+    macro public static function _debug(value:Dynamic) : Expr {
         var _file = Path.withoutDirectory(Context.getPosInfos(Context.currentPos()).file);
         var _context = Path.withoutExtension(_file).toLowerCase();
         var _spaces = _get_spacing(_file);
@@ -119,10 +112,9 @@ class Debug {
                     default: throw LogError.RequireString('log_as meta requires a string constant like "name"');
                 }
             }
-        } //for each meta
+        }
 
         var _log = (_level > 1);
-
             if(_filter != null && (_filter.indexOf(_context) == -1)) {
                 _log = false;
             }
@@ -136,11 +128,9 @@ class Debug {
         }
 
         return macro null;
-
-    } //_debug
+    }
 
     macro public static function _verbose( value:Dynamic ) : Expr {
-
         var _file = Path.withoutDirectory(Context.getPosInfos(Context.currentPos()).file);
         var _context = Path.withoutExtension(_file).toLowerCase();
         var _spaces = _get_spacing(_file);
@@ -152,10 +142,9 @@ class Debug {
                     default: throw LogError.RequireString('log_as meta requires a string constant like "name"');
                 }
             }
-        } //for each meta
+        }
 
         var _log = (_level > 2);
-
             if(_filter != null && (_filter.indexOf(_context) == -1)) {
                 _log = false;
             }
@@ -169,11 +158,9 @@ class Debug {
         }
 
         return macro null;
+    }
 
-    } //_verbose
-
-    macro public static function _verboser( value:Dynamic ) : Expr {
-
+    macro public static function _verboser(value:Dynamic) : Expr {
         var _file = Path.withoutDirectory(Context.getPosInfos(Context.currentPos()).file);
         var _context = Path.withoutExtension(_file).toLowerCase();
         var _spaces = _get_spacing(_file);
@@ -185,10 +172,9 @@ class Debug {
                     default: throw LogError.RequireString('log_as meta requires a string constant like "name"');
                 }
             }
-        } //for each meta
+        }
 
         var _log = (_level > 3);
-
             if(_filter != null && (_filter.indexOf(_context) == -1)) {
                 _log = false;
             }
@@ -202,8 +188,7 @@ class Debug {
         }
 
         return macro null;
-
-    } //_verboser
+    }
 
     macro public static function assert(expr:Expr, ?reason:ExprOf<String>) {
         #if !snow_no_assertions
@@ -215,11 +200,11 @@ class Debug {
             }
 
             return macro @:pos(Context.currentPos()) {
-                if(!$expr) throw snow.api.Debug.DebugError.assertion( '$_str' + $reason);
+                if(!$expr) throw snow.api.Debug.DebugError.assertion('$_str' + $reason);
             }
         #end
         return macro null;
-    } //assert
+    }
 
     macro public static function assertnull(value:Expr, ?reason:ExprOf<String>) {
         #if !snow_no_assertions
@@ -234,7 +219,7 @@ class Debug {
             }
         #end
         return macro null;
-    } //assert
+    }
 
     macro public static function def(value:Expr, def:Expr):Expr {
         return macro @:pos(Context.currentPos()) {
@@ -243,15 +228,11 @@ class Debug {
         }
     }
 
-
-//Internal Helpers
-
-
+    /** Internal Helpers */
     static function _get_spacing(_file:String ) {
-
         var _spaces = '';
 
-            //the magic number here is File.hx[:1234] for the trace listener log spacing
+        /** the magic number here is File.hx[:1234] for the trace listener log spacing */
         var _trace_length = _file.length + 4;
         var _diff : Int = _log_width - _trace_length;
         if(_diff > 0) {
@@ -261,10 +242,8 @@ class Debug {
         }
 
         return _spaces;
-
-    } //_get_spacing
-
-} // Debug
+    }
+}
 
 enum DebugError {
     assertion(expr:String);

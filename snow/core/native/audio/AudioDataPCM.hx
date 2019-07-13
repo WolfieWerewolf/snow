@@ -13,15 +13,12 @@ class AudioDataPCM extends AudioData {
     public var handle : FileHandle;
 
     inline public function new(_app:snow.Snow, _handle:FileHandle, _opt:AudioDataOptions) {
-
         handle = _handle;
 
         super(_app, _opt);
-
-    } //new
+    }
 
     override public function destroy() {
-
         if(handle != null) {
             app.io.module.file_close(handle);
             handle = null;
@@ -31,21 +28,17 @@ class AudioDataPCM extends AudioData {
         handle = null;
 
         super.destroy();
-
-    } //destroy
+    }
 
     override public function seek(_to:Int) : Bool {
-
         if(handle == null) return false;
 
         var _result = app.io.module.file_seek(handle, _to, FileSeek.set);
 
         return _result == 0;
-
-    } //seek
+    }
 
     override public function portion(_into:Uint8Array, _start:Int, _len:Int, _into_result:Array<Int>) : Array<Int> {
-
         inline function _fail() {
             _into_result[0] = 0;
             _into_result[1] = 1;
@@ -72,14 +65,14 @@ class AudioDataPCM extends AudioData {
 
         log('pcm / reading $_read_len bytes from $_start');
 
-            //resize to fit the requested/remaining length
+        /** resize to fit the requested/remaining length */
         var _byte_gap = (_read_len & 0x03);
         // var _samples = new Uint8Array(_read_len + _byte_gap);
         var _n_elements = 1;
         var _elements_read = app.io.module.file_read(handle, _into, _read_len, _n_elements);
 
-            //if no elements were read, it was an error
-            //or end of file so either way it's complete.
+        /** if no elements were read, it was an error */
+        /** or end of file so either way it's complete. */
         if(_elements_read == 0) _complete = true;
 
         log('pcm / total read $_read_len bytes, complete? $_complete');
@@ -88,16 +81,11 @@ class AudioDataPCM extends AudioData {
         _into_result[1] = (_complete)?1:0;
 
         return _into_result;
-
-    } //portion
-
-} //AudioDataPCM
-
+    }
+}
 
 class PCM {
-
     public static function from_file(app:snow.Snow, _path:String, _is_stream:Bool) : AudioData {
-
         var _handle = app.io.module.file_handle(_path, 'rb');
         if(_handle == null) return null;
 
@@ -111,11 +99,10 @@ class PCM {
                 _samples = null;
                 return null;
             }
-        } //!_is_stream
+        }
 
-        //the sound format values are sane defaults -
-        //change these values right before creating the sound itself.
-
+        /** the sound format values are sane defaults -
+            change these values right before creating the sound itself. */
         return new AudioDataPCM(app, _handle, {
             id:         _path,
             is_stream:  _is_stream,
@@ -124,12 +111,10 @@ class PCM {
             length:     _length,
             channels:   1,
             rate:       44100
-        }); //return
-
-    } //from_file
+        });
+    }
 
     public static function from_bytes(app:snow.Snow, _id:String, _bytes:Uint8Array) : AudioData {
-
         return new AudioDataPCM(app, null, {
             id:         _id,
             is_stream:  false,
@@ -138,9 +123,6 @@ class PCM {
             length:     _bytes.length,
             channels:   1,
             rate:       44100
-        }); //return
-
-    } //from_bytes
-
-
-} //PCM
+        });
+    }
+}

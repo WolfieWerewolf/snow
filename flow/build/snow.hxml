@@ -18,3 +18,7 @@
 {{#if snow.audio~}}
 --macro snow.Set.audio("{{{toString snow.audio}}}")
 {{~/if}}
+-D EMSCRIPTEN_SDK
+# If you want the .html file showing how to embed the wasm
+#-D HXCPP_LINK_EMSCRIPTEN_EXT=.html
+#-D emscripten

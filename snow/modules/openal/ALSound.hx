@@ -11,7 +11,6 @@ import snow.modules.openal.Audio;
 @:log_as('AL sound')
 @:allow(snow.modules.openal.Audio)
 class ALSound {
-
     public var instance : AudioInstance;
     public var source : AudioSource;
     public var module : Audio;
@@ -19,30 +18,24 @@ class ALSound {
     public var alsource : Int;
     public var alformat : Int;
 
-        /** The current pan in -1,1 range */
+    /** The current pan in -1,1 range */
     var pan : Float = 0.0;
     var looping : Bool = false;
     var current_time = 0.0;
 
     public function new(_module:Audio, _source:snow.systems.audio.AudioSource, _instance:AudioInstance) {
-                
         module = _module;
         source = _source;
         instance = _instance;
 
         alsource = new_source();
         alformat = source_format();
-
-    } //new
+    }
 
     public function init() {
-
-        var _buffer:ALuint = module.buffers.get(source.source_id);
-
+        var _buffer:ALuint = cast module.buffers.get(source.source_id);
         if(_buffer == AL.NONE) {
-
             var _data = source.data;
-
             _buffer = AL.genBuffer();
 
             _debug(' > new buffer ${_data.id} / format ${alformat} / buffer $_buffer');
@@ -55,38 +48,29 @@ class ALSound {
             }
 
             err('new buffer');
-
             _debug('new buffer made for source / `${source.data.id}` / `${source.source_id}` / $_buffer');
 
             module.buffers.set(source.source_id, _buffer);
 
-        } else { //_buffer == 0
-
+        } else {
             _debug('existing buffer found for source / `${source.data.id}` / `${source.source_id}` / $_buffer');
-
         }
 
         AL.sourcei(alsource, AL.BUFFER, _buffer);
 
         err('attach buffer');
-
-    } //init
+    }
 
     function position(_time:Float) {
-    
         AL.sourcef(alsource, AL.SEC_OFFSET, _time);
-    
-    } //position
+    }
 
     function position_of() {
-        
         return AL.getSourcef(alsource, AL.SEC_OFFSET);
-
-    } //position_of
+    }
 
     public function destroy() {
-
-            //clear error state
+        /** clear error state */
         AL.getError();
 
         if(AL.getSourcei(alsource, AL.SOURCE_STATE) == AL.PLAYING) {
@@ -94,7 +78,7 @@ class ALSound {
             err('stop alsource');
         }
 
-            //detach buffer
+        /** detach buffer */
         if(AL.getSourcei(alsource, AL.BUFFER) != 0) {
             AL.sourcei(alsource, AL.BUFFER, 0);
             err('detach buffer');
@@ -103,20 +87,15 @@ class ALSound {
         AL.deleteSource(alsource);
 
         err('delete alsource');
-
         // alsource = 0;
-
-    } //destroy
+    }
 
     public function tick() : Void {
-        
         instance.tick();
         current_time += module.app.host.tick_delta;
+    }
 
-    } //tick
-
-//internal
-
+    /** internal */
     inline function new_source() : Int {
         var _source = AL.genSource();
             AL.sourcef(_source, AL.GAIN, 1.0);
@@ -132,7 +111,6 @@ class ALSound {
     }
 
     function source_format() {
-
         var _format = AL.FORMAT_MONO16;
 
         if(source.data.channels > 1) {
@@ -154,7 +132,5 @@ class ALSound {
         }
 
         return _format;
-
-    } //source_format
-
-} //ALAudioSource
+    }
+}

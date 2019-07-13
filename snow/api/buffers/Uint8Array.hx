@@ -45,68 +45,62 @@ abstract Uint8Array(js.lib.Uint8Array)
     inline function toString() return 'Uint8Array [byteLength:${this.byteLength}, length:${this.length}]';
 }
 
-#else
+#end
+#if cpp
+import snow.api.buffers.ArrayBufferView;
+import snow.api.buffers.TypedArrayType;
 
-    import snow.api.buffers.ArrayBufferView;
-    import snow.api.buffers.TypedArrayType;
+@:forward
+abstract Uint8Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView {
+    public inline static var BYTES_PER_ELEMENT : Int = 1;
 
-    @:forward
-    abstract Uint8Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView {
+    public var length (get, never):Int;
 
-        public inline static var BYTES_PER_ELEMENT : Int = 1;
-
-        public var length (get, never):Int;
-
-        inline public function new(_elements:Int) {
-            this = ArrayBufferView.fromElements(Uint8, _elements);
-        }
-
-        // @:generic
-        static public inline function fromArray<T>(_array:Array<T>) : Uint8Array {
-            return ArrayBufferView.fromArray(Uint8, cast _array);
-        }
-
-        static public inline function fromView(_view:ArrayBufferView) : Uint8Array {
-            return ArrayBufferView.fromView(Uint8, _view);
-        }
-
-        static public inline function fromBuffer(_buffer:ArrayBuffer, _byteOffset:Int, _byteLength:Int) : Uint8Array {
-            return ArrayBufferView.fromBuffer(Uint8, _buffer, _byteOffset, _byteLength);
-        }
-
-    //Public API
-
-        public inline function subarray( begin:Int, end:Null<Int> = null) : Uint8Array return this.subarray(begin, end);
-
-
-        inline public static function fromBytes(_bytes:haxe.io.Bytes, ?_byteOffset:Int=0, ?_byteLength:Int) : Uint8Array {
-            if(_byteLength == null) _byteLength = _bytes.length;
-            return Uint8Array.fromBuffer(_bytes.getData(), _byteOffset, _byteLength);
-        }
-
-        inline public function toBytes() : haxe.io.Bytes {
-            return haxe.io.Bytes.ofData(this.buffer);
-        }
-
-    //Internal
-
-        inline function toString() return this == null ? null : 'Uint8Array [byteLength:${this.byteLength}, length:${this.length}]';
-
-        inline function get_length() return this.length;
-
-
-        @:noCompletion
-        @:arrayAccess @:extern
-        public inline function __get(idx:Int) {
-            return ArrayBufferIO.getUint8(this.buffer, this.byteOffset+idx);
-        }
-
-        @:noCompletion
-        @:arrayAccess @:extern
-        public inline function __set(idx:Int, val:UInt) : Void {
-            ArrayBufferIO.setUint8(this.buffer, this.byteOffset+idx, val);
-        }
-
+    inline public function new(_elements:Int) {
+        this = ArrayBufferView.fromElements(Uint8, _elements);
     }
 
-#end //!js
+    /** @:generic */
+    static public inline function fromArray<T>(_array:Array<T>) : Uint8Array {
+        return ArrayBufferView.fromArray(Uint8, cast _array);
+    }
+
+    static public inline function fromView(_view:ArrayBufferView) : Uint8Array {
+        return ArrayBufferView.fromView(Uint8, _view);
+    }
+
+    static public inline function fromBuffer(_buffer:ArrayBuffer, _byteOffset:Int, _byteLength:Int) : Uint8Array {
+        return ArrayBufferView.fromBuffer(Uint8, _buffer, _byteOffset, _byteLength);
+    }
+
+    /** Public API */
+    public inline function subarray( begin:Int, end:Null<Int> = null) : Uint8Array return this.subarray(begin, end);
+
+    inline public static function fromBytes(_bytes:haxe.io.Bytes, ?_byteOffset:Int=0, ?_byteLength:Int) : Uint8Array {
+        if(_byteLength == null) _byteLength = _bytes.length;
+        return Uint8Array.fromBuffer(_bytes.getData(), _byteOffset, _byteLength);
+    }
+
+    inline public function toBytes() : haxe.io.Bytes {
+        return haxe.io.Bytes.ofData(this.buffer);
+    }
+
+    /** Internal */
+    inline function toString() return this == null ? null : 'Uint8Array [byteLength:${this.byteLength}, length:${this.length}]';
+
+    inline function get_length() return this.length;
+
+    @:noCompletion
+    @:arrayAccess @:extern
+    public inline function __get(idx:Int) {
+        return ArrayBufferIO.getUint8(this.buffer, this.byteOffset+idx);
+    }
+
+    @:noCompletion
+    @:arrayAccess @:extern
+    public inline function __set(idx:Int, val:UInt) : Void {
+        ArrayBufferIO.setUint8(this.buffer, this.byteOffset+idx, val);
+    }
+}
+
+#end

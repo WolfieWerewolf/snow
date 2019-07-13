@@ -5,256 +5,221 @@ package snow.core.web.assets;
 import snow.types.ImageData;
 import snow.types.SystemEvent;
 import snow.systems.assets.Asset.AssetImage;
-import snow.systems.assets.Assets;
-import snow.types.Types;
 import snow.types.Error;
 import snow.api.Debug.*;
 import snow.api.buffers.*;
 import snow.api.Promise;
 
-import snow.core.web.assets.tga.TGA;
-import snow.core.web.assets.psd.PSD;
-
 @:allow(snow.systems.assets.Assets)
 class Assets implements snow.modules.interfaces.Assets {
 
-//module interface
+    /** module interface */
 
     var app: snow.Snow;
     function new( _app:snow.Snow ) app = _app;
     function onevent(event:SystemEvent):Void {}
     function shutdown() {}
 
-//Public API
+    /** Public API */
 
-    //Images
+    /** Images */
 
-        public function image_info_from_load( _id:String, ?_components:Int = 4 ) : Promise {
+    public function image_info_from_load(_id:String, ?_components:Int = 4) : Promise {
+        return app.io.data_flow(_id, AssetImage.processor);
+    }
 
-            return app.io.data_flow(_id, AssetImage.processor);
+    /** Create an image info (padded to POT) from a given Canvas or Image element. */
+    public function image_info_from_element( _id:String, _elem ) : ImageData {
 
-        } //image_info_from_load
+        var width_pot = nearest_power_of_two(_elem.width);
+        var height_pot = nearest_power_of_two(_elem.height);
+        var image_bytes = POT_bytes_from_element(_elem.width, _elem.height, width_pot, height_pot, cast _elem);
 
-            /** Create an image info (padded to POT) from a given Canvas or Image element. */
-        public function image_info_from_element( _id:String, _elem ) : ImageData {
+        var info = new ImageData(app, {
+            id : _id,
+            bpp : 4,
+            width : _elem.width,
+            height : _elem.height,
+            width_actual : width_pot,
+            height_actual : height_pot,
+            bpp_source : 4,
+            pixels : image_bytes
+        });
 
-            var width_pot = nearest_power_of_two(_elem.width);
-            var height_pot = nearest_power_of_two(_elem.height);
-            var image_bytes = POT_bytes_from_element(_elem.width, _elem.height, width_pot, height_pot, cast _elem);
+        image_bytes = null;
 
-            var info = new ImageData(app, {
-                id : _id,
-                bpp : 4,
-                width : _elem.width,
-                height : _elem.height,
-                width_actual : width_pot,
-                height_actual : height_pot,
-                bpp_source : 4,
-                pixels : image_bytes
-            });
+        return info;
+    }
 
-            image_bytes = null;
+    /** Create an image info from raw (already decoded) image pixels */
+    public function image_info_from_pixels(_id:String, _width:Int, _height:Int, _pixels:Uint8Array, ?_bpp:Int=4) : ImageData {
 
-            return info;
+        var info = new ImageData(app, {
+            id : _id,
+            bpp : 4,
+            width : _width,
+            height : _height,
+            width_actual : _width,
+            height_actual : _height,
+            bpp_source : 4,
+            pixels : _pixels,
+        });
 
-        } //image_info_from_element
+        return info;
+    }
 
-            /** Create an image info from raw (already decoded) image pixels */
-        public function image_info_from_pixels(_id:String, _width:Int, _height:Int, _pixels:Uint8Array, ?_bpp:Int=4) : ImageData {
+    /** Create an image info (padded to POT) from bytes. Promises an ImageData. */
+    public function image_info_from_bytes( _id:String, _bytes:Uint8Array, ?_components:Int = 4 ) : Promise {
 
-            var info = new ImageData(app, {
-                id : _id,
-                bpp : 4,
-                width : _width,
-                height : _height,
-                width_actual : _width,
-                height_actual : _height,
-                bpp_source : 4,
-                pixels : _pixels,
-            });
+        assertnull(_id);
+        assertnull(_bytes);
+        assert(_bytes.length != 0);
 
-            return info;
-        }
+        var ext = haxe.io.Path.extension(_id);
 
-            /** Create an image info (padded to POT) from bytes. Promises an ImageData. */
-        public function image_info_from_bytes( _id:String, _bytes:Uint8Array, ?_components:Int = 4 ) : Promise {
+        #if snow_web_tga
+        if(ext == 'tga') return Promise.resolve(image_info_from_bytes_tga(_id, _bytes));
+        #end
 
-            assertnull(_id);
-            assertnull(_bytes);
-            assert(_bytes.length != 0);
+        #if snow_web_psd
+        if(ext == 'psd') return Promise.resolve(image_info_from_bytes_psd(_id , _bytes));
+        #end
 
-            var ext = haxe.io.Path.extension(_id);
+        return new Promise(function(resolve, reject) {
+            /** convert to a binary string */
+            var str = '', i = 0, len = _bytes.length;
+            while(i < len) str += String.fromCharCode(_bytes[i++] & 0xff);
 
-            #if snow_web_tga
-                if(ext == 'tga') return Promise.resolve(image_info_from_bytes_tga(_id, _bytes));
-            #end
+            var b64 = js.Browser.window.btoa(str);
+            var src = 'data:image/$ext;base64,$b64';
 
-            #if snow_web_psd
-                if(ext == 'psd') return Promise.resolve(image_info_from_bytes_psd(_id , _bytes));
-            #end
+            /** convert to an image element */
+            var _img = new js.html.Image();
 
-            return new Promise(function(resolve, reject) {
-
-                    //convert to a binary string
-                var str = '', i = 0, len = _bytes.length;
-                while(i < len) str += String.fromCharCode(_bytes[i++] & 0xff);
-
-                var b64 = js.Browser.window.btoa(str);
-                var src = 'data:image/$ext;base64,$b64';
-
-                    //convert to an image element
-                var _img = new js.html.Image();
-
-                _img.onload = function(_) {
-                    var info = image_info_from_element(_id, _img);
+            _img.onload = cast function(_) {
+                var info = image_info_from_element(_id, _img);
                     resolve(info);
                 }
 
-                _img.onerror = function(e) {
-                    reject(Error.error('failed to load image from bytes, on error: $e'));
-                }
+            _img.onerror = cast function(e) {
+                reject(Error.error('failed to load image from bytes, on error: $e'));
+            }
 
-                _img.src = src;
+            _img.src = src;
+        });
+    }
 
-            }); //promise
-
-        } //image_info_from_bytes
-
-//Internal converters
+    /** Internal converters */
 
     #if snow_web_psd
 
-        /** Return an image info from the bytes of a PSD image */
-        function image_info_from_bytes_psd( _id:String, _bytes:Uint8Array ) {
+    /** Return an image info from the bytes of a PSD image */
+    function image_info_from_bytes_psd(_id:String, _bytes:Uint8Array) {
+        var psd = new PSD(_bytes);
+        psd.parse();
 
-            var psd = new PSD(_bytes);
-                psd.parse();
+        var _width = untyped psd.header.width;
+        var _height = untyped psd.header.height;
+        var _pixels = new Uint8Array(untyped psd.image.pixelData);
 
-            var _width = untyped psd.header.width;
-            var _height = untyped psd.header.height;
-            var _pixels = new Uint8Array(untyped psd.image.pixelData);
-
-            return image_info_from_pixels(_id, _width, _height, _pixels);
-
-        } //image_info_from_bytes_psd
-
-    #end //snow_web_psd
+        return image_info_from_pixels(_id, _width, _height, _pixels);
+    }
+    #end
 
     #if snow_web_tga
+    /** Return an image info from the bytes of a tga image */
+    function image_info_from_bytes_tga(_id:String, _bytes:Uint8Array) {
+        var image = new TGA();
+        image.load( _bytes );
 
-        /** Return an image info from the bytes of a tga image */
-        function image_info_from_bytes_tga( _id:String, _bytes:Uint8Array ) {
+        return image_info_from_element(_id, image.getCanvas());
+    }
 
-            var image = new TGA();
-                image.load( _bytes );
+    #end
 
-            return image_info_from_element(_id, image.getCanvas());
-
-        } //image_info_from_bytes_tga
-
-    #end //snow_web_tga
-
-        /** Return a POT array of bytes from raw image pixels */
+    /** Return a POT array of bytes from raw image pixels */
     function POT_bytes_from_pixels(_width:Int, _height:Int, _width_pot:Int, _height_pot:Int, _source:Uint8Array) : Uint8Array {
-
         var tmp_canvas = js.Browser.document.createCanvasElement();
 
-            tmp_canvas.width = _width_pot;
-            tmp_canvas.height = _height_pot;
+        tmp_canvas.width = _width_pot;
+        tmp_canvas.height = _height_pot;
 
         var tmp_context = tmp_canvas.getContext2d();
-
-            tmp_context.clearRect( 0, 0, tmp_canvas.width, tmp_canvas.height );
+        tmp_context.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
 
         var image_bytes = null;
         var _pixels = new js.lib.Uint8ClampedArray(_source.buffer);
-        var _imgdata = tmp_context.createImageData( _width, _height );
-            _imgdata.data.set(_pixels);
+        var _imgdata = tmp_context.createImageData(_width, _height);
+        _imgdata.data.set(_pixels);
 
         try {
+            /** store the data in it first */
+            tmp_context.putImageData(_imgdata, 0, 0);
 
-                //store the data in it first
-            tmp_context.putImageData( _imgdata, 0, 0 );
-                //then bring out the full size
-            image_bytes = tmp_context.getImageData( 0, 0, tmp_canvas.width, tmp_canvas.height );
-
+            /**then bring out the full size */
+            image_bytes = tmp_context.getImageData( 0, 0, tmp_canvas.width, tmp_canvas.height);
         } catch(e:Dynamic) {
-
             var tips = '- textures served from file:/// throw security errors\n';
                 tips += '- textures served over http:// work for cross origin byte requests';
 
             log(tips);
             throw e;
+        }
 
-        } //catch
-
-            //cleanup
+        /** cleanup */
         tmp_canvas = null; 
         tmp_context = null;
         _imgdata = null;
 
         return Uint8Array.fromView(image_bytes.data);
-    
     }
 
         /** Return a POT array of bytes from an image/canvas element */
     function POT_bytes_from_element(_width:Int, _height:Int, _width_pot:Int, _height_pot:Int, _source:js.html.Element) : Uint8Array {
 
         var tmp_canvas = js.Browser.document.createCanvasElement();
-
-            tmp_canvas.width = _width_pot;
-            tmp_canvas.height = _height_pot;
+        tmp_canvas.width = _width_pot;
+        tmp_canvas.height = _height_pot;
 
         var tmp_context = tmp_canvas.getContext2d();
-
-            tmp_context.clearRect( 0,0, tmp_canvas.width, tmp_canvas.height );
-            tmp_context.drawImage( cast _source, 0, 0, _width, _height );
+        tmp_context.clearRect(0,0, tmp_canvas.width, tmp_canvas.height);
+        tmp_context.drawImage(cast _source, 0, 0, _width, _height);
 
         var image_bytes = null;
 
         try {
-
-            image_bytes = tmp_context.getImageData( 0, 0, tmp_canvas.width, tmp_canvas.height );
-
+            image_bytes = tmp_context.getImageData(0, 0, tmp_canvas.width, tmp_canvas.height);
         } catch(e:Dynamic) {
-
             var tips = '- textures served from file:/// throw security errors\n';
                 tips += '- textures served over http:// work for cross origin byte requests';
 
             log(tips);
             throw e;
+        }
 
-        } //catch
-
-            //cleanup
+        /** cleanup */
         tmp_canvas = null; tmp_context = null;
 
         return Uint8Array.fromView(image_bytes.data);
+    }
 
-    } //POT_bytes_from_element
 
+    /** Internal helpers */
+    static var POT = true;
+    function nearest_power_of_two(_value:Int) {
+        if(!POT) return _value;
 
-    //Internal helpers
-        static var POT = true;
+        _value--;
+        _value |= _value >> 1;
+        _value |= _value >> 2;
+        _value |= _value >> 4;
+        _value |= _value >> 8;
+        _value |= _value >> 16;
 
-        function nearest_power_of_two(_value:Int) {
+        _value++;
 
-            if(!POT) return _value;
+        return _value;
+    }
+}
 
-            _value--;
-
-            _value |= _value >> 1;
-            _value |= _value >> 2;
-            _value |= _value >> 4;
-            _value |= _value >> 8;
-            _value |= _value >> 16;
-
-            _value++;
-
-            return _value;
-
-        } //nearest_power_of_two
-
-} //Assets
-
-#end //snow_web
+#end
